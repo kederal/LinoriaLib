@@ -12,10 +12,11 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or (function()
     end)
 
 local ScreenGui = Instance.new("ScreenGui")
-ProtectGui(ScreenGui)
+-- ProtectGui(ScreenGui)
 
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.Parent = CoreGui
+ScreenGui.Name = "Linoria Lib"
 
 local Toggles = {}
 local Options = {}
@@ -595,7 +596,7 @@ do
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextSize = 14,
                 Text = ColorPicker.Title,
-                 --Info.Default;
+                --Info.Default;
                 TextWrapped = false,
                 ZIndex = 16,
                 Parent = PickerFrameInner
@@ -704,7 +705,6 @@ do
 
         function ColorPicker:SetValue(HSV)
             local Color = Color3.fromHSV(HSV[1], HSV[2], HSV[3])
-
             ColorPicker:SetHSVFromRGB(Color)
             ColorPicker:Display()
         end
@@ -2132,7 +2132,8 @@ do
                 Position = UDim2.new(0, 5, 0, 0),
                 Size = UDim2.new(1, -5, 1, 0),
                 TextSize = 14,
-                Text = "--",
+                Text = "None",
+                Name = "ItemList",
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextWrapped = true,
                 ZIndex = 7,
@@ -2140,6 +2141,7 @@ do
             }
         )
 
+        --[[
         local Search =
             Library:Create(
             "ImageButton",
@@ -2153,6 +2155,22 @@ do
                 Parent = DropdownInner
             }
         )
+        ]]
+        local ContainerText =
+            Library:Create(
+            "Frame",
+            {
+                BackgroundTransparency = 1,
+                ClipsDescendants = true,
+                Size = UDim2.new(1, 0, 1, 0),
+                ZIndex = 6,
+                Parent = DropdownInner,
+                Visible = false
+            }
+        )
+
+        local Searchaberto = false
+        local Searchtextbox = nil
 
         Library:OnHighlight(DropdownOuter, DropdownOuter, {BorderColor3 = "AccentColor"}, {BorderColor3 = "Black"})
 
@@ -2236,20 +2254,15 @@ do
 
             if Info.Multi then
                 for Idx, Value in next, Values do
-                    if tonumber(Idx) == nil then
-                        Value = Idx
-                    end
-                    if Dropdown.Value[Value] then
+                    if table.find(Dropdown.Value, Value) then
                         Str = Str .. Value .. ", "
                     end
                 end
-
                 Str = Str:sub(1, #Str - 2)
             else
                 Str = Dropdown.Value or ""
             end
-
-            ItemList.Text = (Str == "" and "--" or Str)
+            ItemList.Text = (Str == "" and "None" or Str)
         end
 
         function Dropdown:GetActiveValues()
@@ -2257,7 +2270,7 @@ do
                 local T = {}
 
                 for Value, Bool in next, Dropdown.Value do
-                    table.insert(T, Value)
+                    table.insert(T, Bool)
                 end
 
                 return T
@@ -2283,9 +2296,6 @@ do
                 local Table = {}
                 Count = Count + 1
                 Value = Value
-                if tonumber(Idx) == nil then
-                    Value = Idx
-                end
                 if Searchaberto then
                     local InputText = string.upper(Searchtextbox.Text)
                     if InputText == "" or string.find(string.upper(Value), InputText) ~= nil then
@@ -2329,14 +2339,14 @@ do
                         local Selected
 
                         if Info.Multi then
-                            Selected = Dropdown.Value[Value]
+                            Selected = table.find(Dropdown.Value, Value)
                         else
                             Selected = Dropdown.Value == Value
                         end
 
                         function Table:UpdateButton()
                             if Info.Multi then
-                                Selected = Dropdown.Value[Value]
+                                Selected = table.find(Dropdown.Value, Value)
                             else
                                 Selected = Dropdown.Value == Value
                             end
@@ -2349,16 +2359,21 @@ do
                             function(Input)
                                 if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                                     local Try = not Selected
-
                                     if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
+                                        if Dropdown.Changed then
+                                            Dropdown.Changed(Dropdown.Value)
+                                        end
                                     else
                                         if Info.Multi then
                                             Selected = Try
-
                                             if Selected then
-                                                Dropdown.Value[Value] = true
+                                                table.insert(Dropdown.Value, Value)
                                             else
-                                                Dropdown.Value[Value] = nil
+                                                for i, v in pairs(Dropdown.Value) do
+                                                    if v == Value then
+                                                        table.remove(Dropdown.Value, i)
+                                                    end
+                                                end
                                             end
                                         else
                                             Selected = Try
@@ -2368,7 +2383,6 @@ do
                                             else
                                                 Dropdown.Value = nil
                                             end
-
                                             for _, OtherButton in next, Buttons do
                                                 OtherButton:UpdateButton()
                                             end
@@ -2380,7 +2394,6 @@ do
                                         if Dropdown.Changed then
                                             Dropdown.Changed(Dropdown.Value)
                                         end
-
                                         Library:AttemptSave()
                                     end
                                 end
@@ -2389,7 +2402,6 @@ do
 
                         Table:UpdateButton()
                         Dropdown:Display()
-
                         Buttons[Button] = Table
                     end
                 else
@@ -2433,14 +2445,14 @@ do
                     local Selected
 
                     if Info.Multi then
-                        Selected = Dropdown.Value[Value]
+                        Selected = table.find(Dropdown.Value, Value)
                     else
                         Selected = Dropdown.Value == Value
                     end
 
                     function Table:UpdateButton()
                         if Info.Multi then
-                            Selected = Dropdown.Value[Value]
+                            Selected = table.find(Dropdown.Value, Value)
                         else
                             Selected = Dropdown.Value == Value
                         end
@@ -2455,14 +2467,21 @@ do
                                 local Try = not Selected
 
                                 if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
+                                    if Dropdown.Changed then
+                                        Dropdown.Changed(Dropdown.Value)
+                                    end
                                 else
                                     if Info.Multi then
                                         Selected = Try
 
                                         if Selected then
-                                            Dropdown.Value[Value] = true
+                                            table.insert(Dropdown.Value, Value)
                                         else
-                                            Dropdown.Value[Value] = nil
+                                            for i, v in pairs(Dropdown.Value) do
+                                                if v == Value then
+                                                    table.remove(Dropdown.Value, i)
+                                                end
+                                            end
                                         end
                                     else
                                         Selected = Try
@@ -2506,240 +2525,10 @@ do
         end
 
         function Dropdown:Refresh(tab)
-            local Values = tab or error("table is nil")
-            local Buttons = {}
-
-            for _, Element in next, Scrolling:GetChildren() do
-                if not Element:IsA("UIListLayout") then
-                    -- Library:RemoveFromRegistry(Element);
-                    Element:Destroy()
-                end
-            end
-
-            local Count = 0
-
-            for Idx, Value in next, Values do
-                if Searchaberto then
-                    local InputText = string.upper(Searchtextbox.Text)
-                    if InputText == "" or string.find(string.upper(Value), InputText) ~= nil then
-                        local Button =
-                            Library:Create(
-                            "Frame",
-                            {
-                                BackgroundColor3 = Library.MainColor,
-                                BorderColor3 = Library.OutlineColor,
-                                BorderMode = Enum.BorderMode.Middle,
-                                Size = UDim2.new(1, -1, 0, 20),
-                                ZIndex = 23,
-                                Active = true,
-                                Parent = Scrolling
-                            }
-                        )
-
-                        Library:AddToRegistry(
-                            Button,
-                            {
-                                BackgroundColor3 = "MainColor",
-                                BorderColor3 = "OutlineColor"
-                            }
-                        )
-
-                        local ButtonLabel =
-                            Library:CreateLabel(
-                            {
-                                Size = UDim2.new(1, -6, 1, 0),
-                                Position = UDim2.new(0, 6, 0, 0),
-                                TextSize = 14,
-                                Text = Value,
-                                TextXAlignment = Enum.TextXAlignment.Left,
-                                ZIndex = 25,
-                                Parent = Button
-                            }
-                        )
-
-                        Library:OnHighlight(Button, Button, {BorderColor3 = "AccentColor", ZIndex = 24}, {BorderColor3 = "OutlineColor", ZIndex = 23})
-
-                        local Selected
-
-                        if Info.Multi then
-                            Selected = Dropdown.Value[Value]
-                        else
-                            Selected = Dropdown.Value == Value
-                        end
-
-                        function Table:UpdateButton()
-                            if Info.Multi then
-                                Selected = Dropdown.Value[Value]
-                            else
-                                Selected = Dropdown.Value == Value
-                            end
-
-                            ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
-                            Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and "AccentColor" or "FontColor"
-                        end
-
-                        ButtonLabel.InputBegan:Connect(
-                            function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    local Try = not Selected
-
-                                    if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
-                                    else
-                                        if Info.Multi then
-                                            Selected = Try
-
-                                            if Selected then
-                                                Dropdown.Value[Value] = true
-                                            else
-                                                Dropdown.Value[Value] = nil
-                                            end
-                                        else
-                                            Selected = Try
-
-                                            if Selected then
-                                                Dropdown.Value = Value
-                                            else
-                                                Dropdown.Value = nil
-                                            end
-
-                                            for _, OtherButton in next, Buttons do
-                                                OtherButton:UpdateButton()
-                                            end
-                                        end
-
-                                        Table:UpdateButton()
-                                        Dropdown:Display()
-
-                                        if Dropdown.Changed then
-                                            Dropdown.Changed(Dropdown.Value)
-                                        end
-
-                                        Library:AttemptSave()
-                                    end
-                                end
-                            end
-                        )
-
-                        Table:UpdateButton()
-                        Dropdown:Display()
-
-                        Buttons[Button] = Table
-                    end
-                else
-                    local Table = {}
-
-                    Count = Count + 1
-
-                    local Button =
-                        Library:Create(
-                        "Frame",
-                        {
-                            BackgroundColor3 = Library.MainColor,
-                            BorderColor3 = Library.OutlineColor,
-                            BorderMode = Enum.BorderMode.Middle,
-                            Size = UDim2.new(1, -1, 0, 20),
-                            ZIndex = 23,
-                            Active = true,
-                            Parent = Scrolling
-                        }
-                    )
-
-                    Library:AddToRegistry(
-                        Button,
-                        {
-                            BackgroundColor3 = "MainColor",
-                            BorderColor3 = "OutlineColor"
-                        }
-                    )
-
-                    local ButtonLabel =
-                        Library:CreateLabel(
-                        {
-                            Size = UDim2.new(1, -6, 1, 0),
-                            Position = UDim2.new(0, 6, 0, 0),
-                            TextSize = 14,
-                            Text = Value,
-                            TextXAlignment = Enum.TextXAlignment.Left,
-                            ZIndex = 25,
-                            Parent = Button
-                        }
-                    )
-
-                    Library:OnHighlight(Button, Button, {BorderColor3 = "AccentColor", ZIndex = 24}, {BorderColor3 = "OutlineColor", ZIndex = 23})
-
-                    local Selected
-
-                    if Info.Multi then
-                        Selected = Dropdown.Value[Value]
-                    else
-                        Selected = Dropdown.Value == Value
-                    end
-
-                    function Table:UpdateButton()
-                        if Info.Multi then
-                            Selected = Dropdown.Value[Value]
-                        else
-                            Selected = Dropdown.Value == Value
-                        end
-
-                        ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
-                        Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and "AccentColor" or "FontColor"
-                    end
-
-                    ButtonLabel.InputBegan:Connect(
-                        function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                local Try = not Selected
-
-                                if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
-                                else
-                                    if Info.Multi then
-                                        Selected = Try
-
-                                        if Selected then
-                                            Dropdown.Value[Value] = true
-                                        else
-                                            Dropdown.Value[Value] = nil
-                                        end
-                                    else
-                                        Selected = Try
-
-                                        if Selected then
-                                            Dropdown.Value = Value
-                                        else
-                                            Dropdown.Value = nil
-                                        end
-
-                                        for _, OtherButton in next, Buttons do
-                                            OtherButton:UpdateButton()
-                                        end
-                                    end
-
-                                    Table:UpdateButton()
-                                    Dropdown:Display()
-
-                                    if Dropdown.Changed then
-                                        Dropdown.Changed(Dropdown.Value)
-                                    end
-
-                                    Library:AttemptSave()
-                                end
-                            end
-                        end
-                    )
-
-                    Table:UpdateButton()
-                    Dropdown:Display()
-
-                    Buttons[Button] = Table
-                end
-            end
-
-            local Y = math.clamp(Count * 20, 0, MAX_DROPDOWN_ITEMS * 20) + 1
-            ListOuter.Size = UDim2.new(1, -8, 0, Y)
-            Scrolling.CanvasSize = UDim2.new(0, 0, 0, (Count * 20) + 1)
-
-            -- ListOuter.Size = UDim2.new(1, -8, 0, (#Values * 20) + 2);
+            local Values = tab or nil
+            Dropdown.Values = tab
+            wait(.1)
+            Dropdown:SetValues()
         end
 
         function Dropdown:OpenDropdown()
@@ -2753,15 +2542,21 @@ do
             Library.OpenedFrames[ListOuter] = nil
             DropdownArrow.Rotation = 0
         end
-
         function Dropdown:OnChanged(Func)
             Dropdown.Changed = Func
             Func(Dropdown.Value)
         end
-
+        --[[
         Search.InputBegan:Connect(
             function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if Searchtextbox then
+                        if Searchtextbox.Parent ~= DropdownInner and Searchtextbox.Parent ~= nil then
+                      Searchtextbox.Parent.ItemList.Visible = true
+                      Searchaberto = false
+                      Searchtextbox:Destroy()
+                        end
+                    end
                     Searchaberto = not Searchaberto
                     ItemList.Visible = not Searchaberto
                     if Searchaberto == true then
@@ -2803,17 +2598,15 @@ do
                 end
             end
         )
-
+        ]]
         function Dropdown:SetValue(Val)
             if Dropdown.Multi then
                 local nTable = {}
-
                 for Value, Bool in next, Val do
-                    if table.find(Dropdown.Values, Value) then
-                        nTable[Value] = true
+                    if table.find(Dropdown.Values, Bool) then
+                        table.insert(nTable, Bool)
                     end
                 end
-
                 Dropdown.Value = nTable
             else
                 if (not Val) then
@@ -2838,6 +2631,47 @@ do
                         Dropdown:CloseDropdown()
                     else
                         Dropdown:OpenDropdown()
+                        ContainerText.Visible = true
+                        ItemList.Visible = false
+                        Searchtextbox =
+                            Library:Create(
+                            "TextBox",
+                            {
+                                BackgroundTransparency = 1,
+                                Position = UDim2.new(0, 5, 0, 0),
+                                Size = UDim2.new(1, -42, 1, 0),
+                                Parent = ContainerText,
+                                Font = Enum.Font.Code,
+                                PlaceholderColor3 = Color3.fromRGB(190, 190, 190),
+                                PlaceholderText = "Search Here...",
+                                Text = "",
+                                TextColor3 = Library.FontColor,
+                                TextSize = 14,
+                                TextStrokeTransparency = 0,
+                                TextXAlignment = Enum.TextXAlignment.Left,
+                                ZIndex = 7
+                            }
+                        )
+                        Searchtextbox.Changed:Connect(
+                            function()
+                                Dropdown:SetValues()
+                                local strtext = Searchtextbox.Text
+                                if #strtext >= 29 then
+                                    strtext = strtext:sub(1, #strtext - 2)
+                                    Searchtextbox.Text = (strtext == "" and "" or strtext)
+                                end
+                            end
+                        )
+                        Searchaberto = true
+                        repeat
+                            wait()
+                        until ListOuter.Visible == false or DropdownArrow.Rotation == 0
+                        if Searchtextbox then
+                            ItemList.Visible = true
+                            ContainerText.Visible = false
+                            Searchaberto = false
+                            Searchtextbox:Destroy()
+                        end
                     end
                 end
             end
@@ -2860,23 +2694,53 @@ do
         Dropdown:Display()
 
         if type(Info.Default) == "string" then
-            Info.Default = table.find(Dropdown.Values, Info.Default)
-        end
-
-        if Info.Default then
-            if Info.Multi then
-                Dropdown.Value[Dropdown.Values[Info.Default]] = true
-            else
-                Dropdown.Value = Dropdown.Values[Info.Default]
+            local Default
+            Default = table.find(Dropdown.Values, Info.Default)
+            if Default then
+                Info.Default = table.find(Dropdown.Values, Info.Default)
             end
 
+            if Default then
+            else
+                for i, v in pairs(Dropdown.Values) do
+                    wait()
+
+                    if Info.Default == v then
+                        Info.Default = i
+                        break
+                    end
+                end
+            end
+            if Info.Multi then
+                table.insert(Dropdown.Value, Dropdown.Values[Info.Default])
+            end
+        elseif type(Info.Default) == "table" and Info.Multi then
+            local Default
+
+            for i, v in next, Info.Default do
+                Default = table.find(Dropdown.Values, v) or table.find(Dropdown.Values, i)
+                if Default then
+                    table.insert(Dropdown.Value, Dropdown.Values[Default])
+                else
+                    for i3, v3 in pairs(Dropdown.Values) do
+                        wait()
+                        if v == v3 then
+                            table.insert(Dropdown.Value, Dropdown.Values[i3])
+                        end
+                    end
+                end
+            end
+        end
+        if Info.Default then
+            if not Info.Multi then
+                Dropdown.Value = Dropdown.Values[Info.Default]
+            end
             Dropdown:SetValues()
             Dropdown:Display()
         end
 
         Groupbox:AddBlank(Info.BlankSize or 5)
         Groupbox:Resize()
-
         Options[Idx] = Dropdown
         return Dropdown
     end
