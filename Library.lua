@@ -582,7 +582,7 @@ do
             Library:Create(
             RgbBoxBase.Frame:FindFirstChild("TextBox"),
             {
-                Text = "255, 255, 255",
+                Text = [[255, 255, 255]],
                 PlaceholderText = "RGB color",
                 TextColor3 = Library.FontColor
             }
@@ -1448,6 +1448,7 @@ do
             Value = Info.Default or "",
             Numeric = Info.Numeric or false,
             Finished = Info.Finished or false,
+            Disappear = Info.Disappear or false,
             Type = "Input"
         }
 
@@ -1569,6 +1570,9 @@ do
 
             if Textbox.Changed then
                 Textbox.Changed(Textbox.Value)
+                if Textbox.Disappear then
+                    Box.Text = ""
+                end
             end
         end
 
@@ -1580,6 +1584,7 @@ do
                     end
 
                     Textbox:SetValue(Box.Text)
+
                     Library:AttemptSave()
                 end
             )
@@ -1587,6 +1592,7 @@ do
             Box:GetPropertyChangedSignal("Text"):Connect(
                 function()
                     Textbox:SetValue(Box.Text)
+
                     Library:AttemptSave()
                 end
             )
@@ -2527,7 +2533,7 @@ do
         function Dropdown:Refresh(tab)
             local Values = tab or nil
             Dropdown.Values = tab
-            wait(.1)
+            wait(00.1)
             Dropdown:SetValues()
         end
 
@@ -2603,16 +2609,24 @@ do
             if Dropdown.Multi then
                 local nTable = {}
                 for Value, Bool in next, Val do
-                    if table.find(Dropdown.Values, Bool) then
-                        table.insert(nTable, Bool)
+                    for i, v in next, Dropdown.Values do
+                        if Bool == v then
+                            table.insert(Dropdown.Value, Bool)
+                        end
                     end
                 end
                 Dropdown.Value = nTable
             else
                 if (not Val) then
                     Dropdown.Value = nil
-                elseif table.find(Dropdown.Values, Val) then
-                    Dropdown.Value = Val
+                else
+                    for i, v in pairs(Dropdown.Values) do
+                        if i == Val then
+                            Dropdown.Value = Val
+                        elseif v == Val then
+                            Dropdown.Value = Val
+                        end
+                    end
                 end
             end
 
