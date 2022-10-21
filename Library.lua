@@ -7,6 +7,7 @@ local GuiService = game:GetService("GuiService")
 local RenderStepped = RunService.RenderStepped
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
+transitionInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back)
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function()
     end)
@@ -1697,6 +1698,20 @@ do
             }
         )
 
+        local Togglemarck =
+            Library:Create(
+            "ImageLabel",
+            {
+                AnchorPoint = Vector2.new(0, 0.5),
+                BackgroundTransparency = 1,
+                Position = UDim2.new(1, -11.5, 0.5, 0),
+                Size = UDim2.new(1, 0, 1, 0),
+                Image = "http://www.roblox.com/asset/?id=6031094667",
+                ZIndex = 7,
+                Parent = ToggleInner
+            }
+        )
+
         Library:AddToRegistry(
             ToggleInner,
             {
@@ -1753,6 +1768,7 @@ do
         function Toggle:Display()
             ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor
             ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor
+            Togglemarck.Visible = Toggle.Value
 
             Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and "AccentColor" or "MainColor"
             Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and "AccentColorDark" or "OutlineColor"
@@ -2125,9 +2141,27 @@ do
                 AnchorPoint = Vector2.new(0, 0.5),
                 BackgroundTransparency = 1,
                 Position = UDim2.new(1, -16, 0.5, 0),
-                Size = UDim2.new(0, 12, 0, 12),
-                Image = "http://www.roblox.com/asset/?id=6282522798",
+                Size = UDim2.new(0, 15, 0, 15),
+                Image = "http://www.roblox.com/asset/?id=6035047377",
                 ZIndex = 7,
+                Visible = true,
+                Rotation = 0,
+                Parent = DropdownInner
+            }
+        )
+
+        local DropdownArrow2 =
+            Library:Create(
+            "ImageLabel",
+            {
+                AnchorPoint = Vector2.new(0, 0.5),
+                BackgroundTransparency = 1,
+                Position = UDim2.new(1, -16, 0.5, 0),
+                Size = UDim2.new(0, 15, 0, 15),
+                Image = "http://www.roblox.com/asset/?id=6035067836",
+                ZIndex = 7,
+                Visible = false,
+                Rotation = 90,
                 Parent = DropdownInner
             }
         )
@@ -2540,13 +2574,23 @@ do
         function Dropdown:OpenDropdown()
             ListOuter.Visible = true
             Library.OpenedFrames[ListOuter] = true
-            DropdownArrow.Rotation = 180
+            local tween = TweenService:Create(DropdownArrow, transitionInfo, {Rotation = 90})
+            tween:Play()
+            DropdownArrow.Visible = false
+            local tween2 = TweenService:Create(DropdownArrow2, transitionInfo, {Rotation = 180})
+            tween2:Play()
+            DropdownArrow2.Visible = true
         end
 
         function Dropdown:CloseDropdown()
             ListOuter.Visible = false
             Library.OpenedFrames[ListOuter] = nil
-            DropdownArrow.Rotation = 0
+            local tween = TweenService:Create(DropdownArrow2, transitionInfo, {Rotation = 90})
+            tween:Play()
+            local tween2 = TweenService:Create(DropdownArrow, transitionInfo, {Rotation = 0})
+            tween2:Play()
+            DropdownArrow2.Visible = false
+            DropdownArrow.Visible = true
         end
         function Dropdown:OnChanged(Func)
             Dropdown.Changed = Func
@@ -2636,6 +2680,18 @@ do
             if Dropdown.Changed then
                 Dropdown.Changed(Dropdown.Value)
             end
+        end
+
+        function Dropdown:Add(Val)
+            if typeof(Val) == "table" then
+                for i,v in next, Val do
+                     table.insert(Dropdown.Values, v)
+                end
+            else
+                table.insert(Dropdown.Values, Val)
+            end
+            Dropdown:SetValues()
+            Dropdown:Display()
         end
 
         DropdownOuter.InputBegan:Connect(
@@ -2730,7 +2786,6 @@ do
             end
         elseif type(Info.Default) == "table" and Info.Multi then
             local Default
-
             for i, v in next, Info.Default do
                 Default = table.find(Dropdown.Values, v) or table.find(Dropdown.Values, i)
                 if Default then
@@ -3000,6 +3055,7 @@ function Library:Notify(Text, Time)
         YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
 
     YSize = YSize + 7
+    Notify = {}
 
     local NotifyOuter =
         Library:Create(
@@ -3114,17 +3170,35 @@ function Library:Notify(Text, Time)
 
     pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), "Out", "Quad", 0.4, true)
 
+    function Notify:Delete()
+        if NotifyOuter then
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
+        wait(0.4)
+        NotifyOuter:Destroy()
+        end
+    end
+
+    function Notify:ChangeText(Text)
+        if NotifyOuter then
+               local XSize,
+               YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
+               YSize = YSize + 7
+               NotifyOuter.Size = UDim2.new(0, 0, 0, YSize)
+               NotifyLabel.Text = Text
+        end
+    end
+
     task.spawn(
         function()
             wait(Time or 5)
-
+            if NotifyOuter then
             pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
-
             wait(0.4)
-
             NotifyOuter:Destroy()
+            end
         end
     )
+    return Notify
 end
 
 function Library:CreateWindow(...)
