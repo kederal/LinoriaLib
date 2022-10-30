@@ -7,17 +7,61 @@ local GuiService = game:GetService("GuiService")
 local RenderStepped = RunService.RenderStepped
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
+local Rayfield = game:GetObjects("rbxassetid://10804731440")[1] -- THX SIRIUS <3
 transitionInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back)
 
-local ProtectGui = protectgui or (syn and syn.protect_gui) or (function()
-    end)
+--Loading
+
+Rayfield.Parent = CoreGui
+local Main = Rayfield.Main
+local Elements = Main.Elements
+local LoadingFrame = Main.LoadingFrame
+Main.Topbar.Visible = false
+Main.TabList.Visible = false
+Rayfield.DisplayOrder = 100
+Main.Size = UDim2.new(0, 450, 0, 260)
+Main.Visible = true
+Main.BackgroundTransparency = 1
+LoadingFrame.Title.TextTransparency = 1
+LoadingFrame.Subtitle.TextTransparency = 1
+Main.Shadow.Image.ImageTransparency = 1
+LoadingFrame.Version.TextTransparency = 1
+Elements.Visible = false
+LoadingFrame.Visible = true
+local firstload = true
+
+local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end)
 
 local ScreenGui = Instance.new("ScreenGui")
--- ProtectGui(ScreenGui)
+--ProtectGui(ScreenGui)
 
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-ScreenGui.Parent = CoreGui
 ScreenGui.Name = "Linoria Lib"
+
+if gethui then
+	ScreenGui.Parent = gethui()
+elseif CoreGui:FindFirstChild("RobloxGui") then
+	ScreenGui.Parent = CoreGui:FindFirstChild("RobloxGui")
+else
+	ScreenGui.Parent = CoreGui
+end
+
+if gethui then
+	for _, Interface in ipairs(gethui():GetChildren()) do
+		if Interface.Name == ScreenGui.Name and Interface ~= ScreenGui then
+			Interface.Enabled = false
+			Interface.Name = "Linoria-Old"
+		end
+	end
+else
+	for _, Interface in ipairs(CoreGui:GetChildren()) do
+		if Interface.Name == ScreenGui.Name and Interface ~= ScreenGui then
+			Interface.Enabled = false
+			Interface.Name = "Linoria-Old"
+		end
+	end
+end
+
 
 local Toggles = {}
 local Options = {}
@@ -39,7 +83,7 @@ local Library = {
     Signals = {},
     ScreenGui = ScreenGui
 }
-
+Library.Loadui = false
 local RainbowStep = 0
 local Hue = 0
 
@@ -106,7 +150,8 @@ function Library:CreateLabel(Properties, IsHud)
         IsHud
     )
 
-    return Library:Create(_Instance, Properties)
+    local instance = Library:Create(_Instance, Properties)
+    return instance
 end
 
 function Library:MakeDraggable(Instance, Cutoff)
@@ -132,8 +177,7 @@ function Library:MakeDraggable(Instance, Cutoff)
 end
 
 function Library:AddToolTip(InfoStr, HoverInstance)
-    local X,
-        Y = Library:GetTextBounds(InfoStr, Enum.Font.Code, 14)
+    local X, Y = Library:GetTextBounds(InfoStr, Enum.Font.Code, 14)
     local Tooltip =
         Library:Create(
         "Frame",
@@ -231,8 +275,7 @@ end
 
 function Library:MouseIsOverOpenedFrame()
     for Frame, _ in next, Library.OpenedFrames do
-        local AbsPos,
-            AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize
+        local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize
 
         if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
             return true
@@ -241,8 +284,7 @@ function Library:MouseIsOverOpenedFrame()
 end
 
 function Library:IsMouseOverFrame(Frame)
-    local AbsPos,
-        AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize
+    local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize
 
     if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
         return true
@@ -259,9 +301,7 @@ function Library:GetTextBounds(Text, Font, Size, Resolution)
 end
 
 function Library:GetDarkerColor(Color)
-    local H,
-        S,
-        V = Color3.toHSV(Color)
+    local H, S, V = Color3.toHSV(Color)
     return Color3.fromHSV(H, S, V / 1.5)
 end
 Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor)
@@ -374,9 +414,7 @@ do
         }
 
         function ColorPicker:SetHSVFromRGB(Color)
-            local H,
-                S,
-                V = Color3.toHSV(Color)
+            local H, S, V = Color3.toHSV(Color)
 
             ColorPicker.Hue = H
             ColorPicker.Sat = S
@@ -632,12 +670,9 @@ do
         HueBox.FocusLost:Connect(
             function(enter)
                 if enter then
-                    local success,
-                        result = pcall(Color3.fromHex, HueBox.Text)
+                    local success, result = pcall(Color3.fromHex, HueBox.Text)
                     if success and typeof(result) == "Color3" then
-                        ColorPicker.Hue,
-                            ColorPicker.Sat,
-                            ColorPicker.Vib = Color3.toHSV(result)
+                        ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(result)
                     end
                 end
 
@@ -648,13 +683,9 @@ do
         RgbBox.FocusLost:Connect(
             function(enter)
                 if enter then
-                    local r,
-                        g,
-                        b = RgbBox.Text:match("(%d+),%s*(%d+),%s*(%d+)")
+                    local r, g, b = RgbBox.Text:match("(%d+),%s*(%d+),%s*(%d+)")
                     if r and g and b then
-                        ColorPicker.Hue,
-                            ColorPicker.Sat,
-                            ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
+                        ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
                     end
                 end
 
@@ -774,8 +805,7 @@ do
             InputService.InputBegan:Connect(
                 function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        local AbsPos,
-                            AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
+                        local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
 
                         if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
                             ColorPicker:Hide()
@@ -1018,8 +1048,7 @@ do
         end
 
         function KeyPicker:SetValue(Data)
-            local Key,
-                Mode = Data[1], Data[2]
+            local Key, Mode = Data[1], Data[2]
             DisplayLabel.Text = Key
             KeyPicker.Value = Key
             ModeButtons[Mode]:Select()
@@ -1128,8 +1157,7 @@ do
                     end
 
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        local AbsPos,
-                            AbsSize = ModeSelectOuter.AbsolutePosition, ModeSelectOuter.AbsoluteSize
+                        local AbsPos, AbsSize = ModeSelectOuter.AbsolutePosition, ModeSelectOuter.AbsoluteSize
 
                         if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
                             ModeSelectOuter.Visible = false
@@ -1978,10 +2006,7 @@ do
                 return math.floor(Value)
             end
 
-            local Str = Value .. ""
-            local Dot = Str:find("%.")
-
-            return Dot and tonumber(Str:sub(1, Dot + Slider.Rounding)) or Value
+            return tonumber(string.format('%.' .. Slider.Rounding .. 'f', Value))
         end
 
         function Slider:GetValueFromXOffset(X)
@@ -2684,8 +2709,8 @@ do
 
         function Dropdown:Add(Val)
             if typeof(Val) == "table" then
-                for i,v in next, Val do
-                     table.insert(Dropdown.Values, v)
+                for i, v in next, Val do
+                    table.insert(Dropdown.Values, v)
                 end
             else
                 table.insert(Dropdown.Values, Val)
@@ -2750,8 +2775,7 @@ do
         InputService.InputBegan:Connect(
             function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    local AbsPos,
-                        AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize
+                    local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize
 
                     if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
                         Dropdown:CloseDropdown()
@@ -3042,8 +3066,7 @@ function Library:SetWatermarkVisibility(Bool)
 end
 
 function Library:SetWatermark(Text)
-    local X,
-        Y = Library:GetTextBounds(Text, Enum.Font.Code, 14)
+    local X, Y = Library:GetTextBounds(Text, Enum.Font.Code, 14)
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3)
     Library:SetWatermarkVisibility(true)
 
@@ -3051,8 +3074,7 @@ function Library:SetWatermark(Text)
 end
 
 function Library:Notify(Text, Time)
-    local XSize,
-        YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
+    local XSize, YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
 
     YSize = YSize + 7
     Notify = {}
@@ -3172,19 +3194,18 @@ function Library:Notify(Text, Time)
 
     function Notify:Delete()
         if NotifyOuter then
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
-        wait(0.4)
-        NotifyOuter:Destroy()
+            pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
+            wait(0.4)
+            NotifyOuter:Destroy()
         end
     end
 
     function Notify:ChangeText(Text)
         if NotifyOuter then
-               local XSize,
-               YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
-               YSize = YSize + 7
-               NotifyOuter.Size = UDim2.new(0, 0, 0, YSize)
-               NotifyLabel.Text = Text
+            local XSize, YSize = Library:GetTextBounds(Text, Enum.Font.Code, 14)
+            YSize = YSize + 7
+            NotifyOuter.Size = UDim2.new(0, 0, 0, YSize)
+            NotifyLabel.Text = Text
         end
     end
 
@@ -3192,9 +3213,9 @@ function Library:Notify(Text, Time)
         function()
             wait(Time or 5)
             if NotifyOuter then
-            pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
-            wait(0.4)
-            NotifyOuter:Destroy()
+                pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), "Out", "Quad", 0.4, true)
+                wait(0.4)
+                NotifyOuter:Destroy()
             end
         end
     )
@@ -3210,6 +3231,7 @@ function Library:CreateWindow(...)
     else
         Config.Title = Arguments[1]
         Config.AutoShow = Arguments[2] or false
+        Config.ShowLoading = Arguments[3] or false
     end
 
     if type(Config.Title) ~= "string" then
@@ -3226,6 +3248,12 @@ function Library:CreateWindow(...)
     if Config.Center then
         Config.AnchorPoint = Vector2.new(0.5, 0.5)
         Config.Position = UDim2.fromScale(0.5, 0.5)
+    end
+
+    if Config.ShowLoading then
+        LoadingFrame.Title.Text = Config.TitleLoading or "TrapHub"
+        LoadingFrame.Subtitle.Text = Config.SubTittleLoading or "by Sirius"
+        LoadingFrame.Version.Text = Config.VersionLoading or "Sirius <3"
     end
 
     local Window = {
@@ -3327,13 +3355,17 @@ function Library:CreateWindow(...)
 
     local TabArea =
         Library:Create(
-        "Frame",
+        "ScrollingFrame",
         {
             BackgroundTransparency = 1,
             Position = UDim2.new(0, 8, 0, 8),
             Size = UDim2.new(1, -16, 0, 21),
             ZIndex = 1,
-            Parent = MainSectionInner
+            AutomaticCanvasSize = "X",
+            ScrollBarImageTransparency = 0,
+            ScrollBarThickness = 0,
+            ScrollingDirection = "X",
+            Parent = MainSectionInner,
         }
     )
 
@@ -3404,12 +3436,16 @@ function Library:CreateWindow(...)
             Library:CreateLabel(
             {
                 Position = UDim2.new(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 1, -1),
+                Size = UDim2.new(1, 0, 0.015, 1),
                 Text = Name,
                 ZIndex = 1,
                 Parent = TabButton
             }
         )
+
+        
+
+
 
         local Blocker =
             Library:Create(
@@ -3439,13 +3475,14 @@ function Library:CreateWindow(...)
                 Name = "TabFrame",
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 1, 0),
+                Size = UDim2.new(1,0,1,0),
                 Visible = false,
                 ZIndex = 2,
                 Parent = TabContainer
             }
         )
 
+        --[[
         local LeftSide =
             Library:Create(
             "Frame",
@@ -3458,6 +3495,69 @@ function Library:CreateWindow(...)
             }
         )
 
+        ]]
+        
+    
+        
+        local LeftSide =
+            Library:Create(
+            "ScrollingFrame",
+            {
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 8, 0, 8),
+                Size = UDim2.new(0.5, -12, 0,507),
+                CanvasSize = UDim2.new(0,0,0,0),
+                ScrollBarThickness = 0,
+                ZIndex = 2,
+                Parent = TabFrame,
+                ScrollBarImageTransparency = 1,
+                AutomaticCanvasSize = "Y",
+                ScrollingDirection = "XY",
+            }
+        )
+       
+
+        --[[
+            Position = UDim2.new(0, 8, 0, 8),
+            Size = UDim2.new(0.5, -12, 0, 507),
+        ]]
+        --[[
+        Library:AddToRegistry(
+            LeftSide,
+            {
+                ScrollBarImageColor3 = "AccentColor"
+            }
+        )
+        ]]
+        
+        
+
+
+        local LeftList =
+        Library:Create(
+            "UIListLayout",
+            {
+                Padding = UDim.new(0, 8, 0,8),
+                FillDirection = Enum.FillDirection.Vertical,
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Top,
+                Parent = LeftSide
+            }
+        )
+
+--[[
+       local LeftPadding = 
+            Library:Create(
+            "UIPadding",
+            {
+                PaddingTop = UDim:new(10),
+                Parent = LeftSide
+            }
+        )
+        
+    
+        
         local RightSide =
             Library:Create(
             "Frame",
@@ -3469,26 +3569,62 @@ function Library:CreateWindow(...)
                 Parent = TabFrame
             }
         )
-
-        Library:Create(
-            "UIListLayout",
+    ]]
+        
+        
+        local RightSide =
+            Library:Create(
+            "ScrollingFrame",
             {
-                Padding = UDim.new(0, 8),
-                FillDirection = Enum.FillDirection.Vertical,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                Parent = LeftSide
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0.5, 4, 0, 8),
+                Size = UDim2.new(0.5, -12, 0, 507),
+                ZIndex = 2,
+                CanvasSize = UDim2.new(0,0,0,0),
+                ScrollBarThickness = 0,
+                Parent = TabFrame,
+                ScrollBarImageTransparency = 1,
+                AutomaticCanvasSize = "Y",
+                ScrollingDirection = "XY",
             }
         )
+        --[[
+        Library:AddToRegistry(
+            RightSide,
+            {
+                ScrollBarImageColor3 = "AccentColor"
+            }
+        )
+        ]]
+        
 
+        
+
+        local RightList =
         Library:Create(
             "UIListLayout",
             {
-                Padding = UDim.new(0, 8),
+                Padding = UDim.new(0, 8,0,8),
                 FillDirection = Enum.FillDirection.Vertical,
                 SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Top,
                 Parent = RightSide
             }
         )
+
+        --[[
+       local RightPadding = 
+            Library:Create(
+            "UIPadding",
+            {
+                PaddingTop = UDim:new(10),
+                Parent = RightSide
+            }
+        )
+        ]]
+        
+       
 
         function Tab:ShowTab()
             for _, Tab in next, Window.Tabs do
@@ -3517,7 +3653,7 @@ function Library:CreateWindow(...)
                 {
                     BackgroundColor3 = Library.BackgroundColor,
                     BorderColor3 = Library.OutlineColor,
-                    Size = UDim2.new(1, 0, 0, 507),
+                    Size = UDim2.new(0.99, 0, 0, 507),
                     ZIndex = 2,
                     Parent = Info.Side == 1 and LeftSide or RightSide
                 }
@@ -3539,11 +3675,13 @@ function Library:CreateWindow(...)
                     BorderColor3 = Color3.new(0, 0, 0),
                     BorderMode = Enum.BorderMode.Inset,
                     Size = UDim2.new(1, 0, 1, 0),
+                    Position = UDim2.new(0.001, 0, 0, 0),
                     ZIndex = 4,
                     Parent = BoxOuter
                 }
             )
 
+            
             Library:AddToRegistry(
                 BoxInner,
                 {
@@ -3612,8 +3750,8 @@ function Library:CreateWindow(...)
                         Size = Size + Element.Size.Y.Offset
                     end
                 end
-
-                BoxOuter.Size = UDim2.new(1, 0, 0, 20 + Size + 2)
+                local currentHolder = BoxOuter.Parent
+                BoxOuter.Size = UDim2.new(0.99, 0, 0, 20 + Size + 2)
             end
 
             Groupbox.Container = Container
@@ -3646,7 +3784,7 @@ function Library:CreateWindow(...)
                 {
                     BackgroundColor3 = Library.BackgroundColor,
                     BorderColor3 = Library.OutlineColor,
-                    Size = UDim2.new(1, 0, 0, 0),
+                    Size = UDim2.new(0.99, 0, 0, 0),
                     ZIndex = 2,
                     Parent = Info.Side == 1 and LeftSide or RightSide
                 }
@@ -3668,6 +3806,7 @@ function Library:CreateWindow(...)
                     BorderColor3 = Color3.new(0, 0, 0),
                     BorderMode = Enum.BorderMode.Inset,
                     Size = UDim2.new(1, 0, 1, 0),
+                    Position = UDim2.new(0.001, 0, 0, 0),
                     ZIndex = 4,
                     Parent = BoxOuter
                 }
@@ -3839,7 +3978,7 @@ function Library:CreateWindow(...)
                     end
 
                     if BoxOuter.Size.Y.Offset < 20 + Size + 2 then
-                        BoxOuter.Size = UDim2.new(1, 0, 0, 20 + Size + 2)
+                        BoxOuter.Size = UDim2.new(0.99, 0, 0, 20 + Size + 2)
                     end
                 end
 
@@ -3910,6 +4049,31 @@ function Library:CreateWindow(...)
     )
 
     function Library.Toggle()
+        if firstload == true and Config.ShowLoading then
+        wait(0.5)
+        TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {ImageTransparency = 0.55}):Play()
+        wait(0.1)
+        TweenService:Create(LoadingFrame.Title, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+        wait(0.05)
+        TweenService:Create(LoadingFrame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+        wait(0.05)
+        TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+
+        wait(3)
+        TweenService:Create(LoadingFrame.Title, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+        TweenService:Create(LoadingFrame.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+        TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {AnchorPoint = Vector2.new(0.5, 0.5)}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Position = UDim2.fromScale(0.5, 0.5)}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Size = UDim2.fromOffset(550, 600)}):Play()
+        wait(1.2)
+        TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+        Library.Loadui = true
+        end
+        firstload = false
+
         Outer.Visible = not Outer.Visible
         ModalElement.Modal = Outer.Visible
 
