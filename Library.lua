@@ -2234,6 +2234,10 @@ do
             }
         )
 
+
+        Groupbox:AddBlank(Info.BlankSize or 5)
+        Groupbox:Resize()
+
         local Searchaberto = false
         local Searchtextbox = nil
 
@@ -2832,8 +2836,6 @@ do
             Dropdown:Display()
         end
 
-        Groupbox:AddBlank(Info.BlankSize or 5)
-        Groupbox:Resize()
         Options[Idx] = Dropdown
         return Dropdown
     end
