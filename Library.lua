@@ -1199,7 +1199,7 @@ do
         local Groupbox = self
         local Container = Groupbox.Container
 
-        Library:Create(
+        local blank = Library:Create(
             "Frame",
             {
                 BackgroundTransparency = 1,
@@ -2296,7 +2296,7 @@ do
                 TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
                 BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
                 ScrollBarThickness = 3,
-                ScrollBarImageColor3 = Library.AccentColor
+                ScrollBarImageColor3 = Library.AccentColor,
             }
         )
 
@@ -2361,13 +2361,13 @@ do
 
             local Count = 0
 
-            for Idx, Value in next, Values do
+            for Idx, Value in pairs(Values) do
                 local Table = {}
-                Count = Count + 1
                 Value = Value
                 if Searchaberto then
                     local InputText = string.upper(Searchtextbox.Text)
                     if InputText == "" or string.find(string.upper(Value), InputText) ~= nil then
+                        Count = Count + 1
                         local Button =
                             Library:Create(
                             "Frame",
@@ -2587,7 +2587,7 @@ do
             end
 
             local Y = math.clamp(Count * 20, 0, MAX_DROPDOWN_ITEMS * 20) + 1
-            ListOuter.Size = UDim2.new(1, -8, 0, Y)
+            TweenService:Create(ListOuter, TweenInfo.new(0.55, Enum.EasingStyle.Quint), {Size = UDim2.new(1, -8, 0, Y)}):Play()
             Scrolling.CanvasSize = UDim2.new(0, 0, 0, (Count * 20) + 1)
 
             -- ListOuter.Size = UDim2.new(1, -8, 0, (#Values * 20) + 2);
@@ -3508,7 +3508,7 @@ function Library:CreateWindow(...)
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0, 8, 0, 8),
                 Size = UDim2.new(0.5, -12, 0,507),
-                CanvasSize = UDim2.new(0,0,0,0),
+                CanvasSize = UDim2.new(0,1.5,0,0),
                 ScrollBarThickness = 0,
                 ZIndex = 2,
                 Parent = TabFrame,
@@ -3582,7 +3582,7 @@ function Library:CreateWindow(...)
                 Position = UDim2.new(0.5, 4, 0, 8),
                 Size = UDim2.new(0.5, -12, 0, 507),
                 ZIndex = 2,
-                CanvasSize = UDim2.new(0,0,0,0),
+                CanvasSize = UDim2.new(0,1.5,0,0),
                 ScrollBarThickness = 0,
                 Parent = TabFrame,
                 ScrollBarImageTransparency = 1,
@@ -4074,8 +4074,8 @@ function Library:CreateWindow(...)
         TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
         Library.Loadui = true
         end
+        Library.Loadui = true
         firstload = false
-
         Outer.Visible = not Outer.Visible
         ModalElement.Modal = Outer.Visible
 
@@ -4098,7 +4098,6 @@ function Library:CreateWindow(...)
 
             RenderStepped:Wait()
         end
-
         Cursor:Remove()
     end
 
