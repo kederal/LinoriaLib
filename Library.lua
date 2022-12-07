@@ -34,7 +34,7 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or (function()
     end)
 
 local ScreenGui = Instance.new('ScreenGui')
-ProtectGui(ScreenGui)
+-- ProtectGui(ScreenGui)
 
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.Name = 'Linoria Lib'
@@ -159,14 +159,14 @@ function Library:MakeDraggable(Instance, Cutoff)
 
     Instance.InputBegan:Connect(
         function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                 local ObjPos = Vector2.new(Mouse.X - Instance.AbsolutePosition.X, Mouse.Y - Instance.AbsolutePosition.Y)
 
                 if ObjPos.Y > (Cutoff or 40) then
                     return
                 end
 
-                while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) do
                     Instance.Position = UDim2.new(0, Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X), 0, Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y))
 
                     RenderStepped:Wait()
@@ -748,8 +748,8 @@ do
 
         SatVibMap.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) do
                         local MinX = SatVibMap.AbsolutePosition.X
                         local MaxX = MinX + SatVibMap.AbsoluteSize.X
                         local MouseX = math.clamp(Mouse.X, MinX, MaxX)
@@ -772,8 +772,8 @@ do
 
         HueSelectorInner.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch then
+                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or InputService:IsMouseButtonPressed(Enum.UserInputType.Touch)  do
                         local MinY = HueSelectorInner.AbsolutePosition.Y
                         local MaxY = MinY + HueSelectorInner.AbsoluteSize.Y
                         local MouseY = math.clamp(Mouse.Y, MinY, MaxY)
@@ -791,7 +791,7 @@ do
 
         DisplayFrame.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                     if PickerFrameOuter.Visible then
                         ColorPicker:Hide()
                     else
@@ -804,7 +804,7 @@ do
         Library:GiveSignal(
             InputService.InputBegan:Connect(
                 function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                         local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
 
                         if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -988,7 +988,7 @@ do
 
             Label.InputBegan:Connect(
                 function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch then
                         ModeButton:Select()
                         Library:AttemptSave()
                     end
@@ -1077,7 +1077,7 @@ do
 
         PickOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                     Picking = true
 
                     DisplayLabel.Text = ''
@@ -1156,7 +1156,7 @@ do
                         KeyPicker:Update()
                     end
 
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch then
                         local AbsPos, AbsSize = ModeSelectOuter.AbsolutePosition, ModeSelectOuter.AbsoluteSize
 
                         if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -1343,7 +1343,7 @@ do
 
         ButtonOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                     Func()
                 end
             end
@@ -1397,7 +1397,7 @@ do
 
             Outer.InputBegan:Connect(
                 function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                         Func()
                     end
                 end
@@ -1826,7 +1826,7 @@ do
 
         ToggleRegion.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                     Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
                     Library:AttemptSave()
                 end
@@ -2031,12 +2031,12 @@ do
 
         SliderInner.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
                     local mPos = Mouse.X
                     local gPos = Fill.Size.X.Offset
                     local Diff = mPos - (Fill.AbsolutePosition.X + gPos)
 
-                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) do
                         local nMPos = Mouse.X
                         local nX = math.clamp(gPos + (nMPos - mPos) + Diff, 0, Slider.MaxSize)
 
@@ -2424,7 +2424,7 @@ do
 
                         ButtonLabel.InputBegan:Connect(
                             function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch then
                                     local Try = not Selected
                                     if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
                                         if Dropdown.Changed then
@@ -2530,7 +2530,7 @@ do
 
                     ButtonLabel.InputBegan:Connect(
                         function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch then
                                 local Try = not Selected
 
                                 if Dropdown:GetActiveValues() == 1 and (not Try) and (not Info.AllowNull) then
@@ -2723,7 +2723,7 @@ do
 
         DropdownOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
                     if ListOuter.Visible then
                         Dropdown:CloseDropdown()
                     else
@@ -2776,7 +2776,7 @@ do
 
         InputService.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch  then
                     local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize
 
                     if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -3241,9 +3241,16 @@ function Library:CreateWindow(...)
     if typeof(Config.Position) ~= 'UDim2' then
         Config.Position = UDim2.fromOffset(175, 50)
     end
+    
     if typeof(Config.Size) ~= 'UDim2' then
-        Config.Size = UDim2.fromOffset(550, 600)
+        if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
+            Config.Size = UDim2.fromOffset(450, 500)
+        else
+            Config.Size = UDim2.fromOffset(550, 600)
+        end
     end
+
+    SizeTab = Config.Size.Y.Offset - 93
 
     if Config.Center then
         Config.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3498,13 +3505,13 @@ function Library:CreateWindow(...)
             {
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0, 8, 0, 8),
-                Size = UDim2.new(0.5, -12, 0, 507),
+                Size = UDim2.new(0.5, -12, 0, SizeTab),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 0,
                 ZIndex = 2,
                 Parent = TabFrame,
                 ScrollBarImageTransparency = 1,
-              --  AutomaticCanvasSize = 'Y',
+                --  AutomaticCanvasSize = 'Y',
                 ScrollingDirection = 'XY'
             }
         )
@@ -3564,7 +3571,7 @@ function Library:CreateWindow(...)
             {
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0.5, 4, 0, 8),
-                Size = UDim2.new(0.5, -12, 0, 507),
+                Size = UDim2.new(0.5, -12, 0, SizeTab),
                 ZIndex = 2,
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 0,
@@ -3605,6 +3612,40 @@ function Library:CreateWindow(...)
             }
         )
         ]]
+        --[[
+        RightSide.Changed:connect(
+            function()
+                wait(3)
+                local add = 0
+                local RelativeOffsetRight = 0
+                for _, Element in pairs(RightSide:GetChildren()) do
+                    if not Element:IsA('UIListLayout') then
+                        RelativeOffsetRight = RelativeOffsetRight + Element.Size.Y.Offset
+                    end
+                end
+                if RelativeOffsetRight > 500 then
+                    add = 160
+                end
+                RightSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetRight + add)
+            end
+        )
+        LeftSide.Changed:connect(
+            function()
+                wait(3)
+                local add = 0
+                local RelativeOffsetLeft = 0
+                for _, Element in pairs(LeftSide:GetChildren()) do
+                    if not Element:IsA('UIListLayout') then
+                        RelativeOffsetLeft = RelativeOffsetLeft + Element.Size.Y.Offset
+                    end
+                end
+                if RelativeOffsetLeft > 500 then
+                    add = 160
+                end
+                LeftSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetLeft + add)
+            end
+        )
+        ]]
         function Tab:ShowTab()
             for _, Tab in next, Window.Tabs do
                 Tab:HideTab()
@@ -3614,6 +3655,7 @@ function Library:CreateWindow(...)
             local RelativeOffsetLeft = 0
             local addRight = 0
             local addLeft = 0
+
             for _, Element in next, RightSide:GetChildren() do
                 if not Element:IsA('UIListLayout') then
                     RelativeOffsetRight = RelativeOffsetRight + Element.Size.Y.Offset
@@ -3625,23 +3667,46 @@ function Library:CreateWindow(...)
                 end
             end
 
-            --[[
-            print('Right: ' .. tostring(RelativeOffsetRight))
-            print('Left: ' .. tostring(RelativeOffsetLeft))
-            ]]
+            -- print('Right: ' .. tostring(RelativeOffsetRight))
+            -- print('Left: ' .. tostring(RelativeOffsetLeft))
 
             -- 14.5
             -- 507.5 max tab
-            if RelativeOffsetRight >= 500 then
+            if RelativeOffsetRight >= SizeTab - 7 then
                 addRight = 160
+            -- 160
             end
-            if RelativeOffsetLeft >= 500 then
+            if RelativeOffsetLeft >= SizeTab - 7 then
                 addLeft = 160
+            -- 160
             end
             RightSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetRight + addRight)
             LeftSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetLeft + addLeft)
+            --[[
+                            local add = 0
+                local RelativeOffsetLeft = 0
+                for _, Element in pairs(LeftSide:GetChildren()) do
+                    if not Element:IsA('UIListLayout') then
+                        RelativeOffsetLeft = RelativeOffsetLeft + Element.Size.Y.Offset
+                    end
+                end
+                if RelativeOffsetLeft > 500 then
+                    add = 160
+                end
+                LeftSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetLeft + add)
 
-
+                local add = 0
+                local RelativeOffsetRight = 0
+                for _, Element in pairs(RightSide:GetChildren()) do
+                    if not Element:IsA('UIListLayout') then
+                        RelativeOffsetRight = RelativeOffsetRight + Element.Size.Y.Offset
+                    end
+                end
+                if RelativeOffsetRight > 500 then
+                    add = 160
+                end
+                RightSide.CanvasSize = UDim2.new(0, 0, 0, RelativeOffsetRight + add)
+]]
             TabButtonLabel.TextColor3 = Library.AccentColor
             Blocker.BackgroundTransparency = 0
             TabButton.BackgroundColor3 = Library.MainColor
@@ -3666,7 +3731,7 @@ function Library:CreateWindow(...)
                 {
                     BackgroundColor3 = Library.BackgroundColor,
                     BorderColor3 = Library.OutlineColor,
-                    Size = UDim2.new(0.99, 0, 0, 507),
+                    Size = UDim2.new(0.99, 0, 0, SizeTab),
                     ZIndex = 2,
                     Parent = Info.Side == 1 and LeftSide or RightSide
                 }
@@ -4004,7 +4069,7 @@ TabButtonLabel.TextColor3 = Library.FontColor
 
                 Button.InputBegan:Connect(
                     function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
                             Tab:Show()
                         end
                     end
@@ -4040,7 +4105,7 @@ TabButtonLabel.TextColor3 = Library.FontColor
 
         TabButton.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
                     Tab:ShowTab()
                 end
             end
