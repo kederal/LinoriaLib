@@ -791,7 +791,7 @@ do
 
         DisplayFrame.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                     if PickerFrameOuter.Visible then
                         ColorPicker:Hide()
                     else
@@ -804,7 +804,7 @@ do
         Library:GiveSignal(
             InputService.InputBegan:Connect(
                 function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                         local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
 
                         if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -1077,7 +1077,7 @@ do
 
         PickOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                     Picking = true
 
                     DisplayLabel.Text = ''
@@ -1343,7 +1343,7 @@ do
 
         ButtonOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                     Func()
                 end
             end
@@ -1397,7 +1397,7 @@ do
 
             Outer.InputBegan:Connect(
                 function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                         Func()
                     end
                 end
@@ -1826,7 +1826,7 @@ do
 
         ToggleRegion.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                     Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
                     Library:AttemptSave()
                 end
@@ -2031,7 +2031,7 @@ do
 
         SliderInner.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch) then
                     local mPos = Mouse.X
                     local gPos = Fill.Size.X.Offset
                     local Diff = mPos - (Fill.AbsolutePosition.X + gPos)
@@ -2723,7 +2723,7 @@ do
 
         DropdownOuter.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch)  then
                     if ListOuter.Visible then
                         Dropdown:CloseDropdown()
                     else
@@ -3241,10 +3241,10 @@ function Library:CreateWindow(...)
     if typeof(Config.Position) ~= 'UDim2' then
         Config.Position = UDim2.fromOffset(175, 50)
     end
-    
+
     if typeof(Config.Size) ~= 'UDim2' then
         if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
-            Config.Size = UDim2.fromOffset(450, 500)
+            Config.Size = UDim2.fromOffset(400, 450)
         else
             Config.Size = UDim2.fromOffset(550, 600)
         end
@@ -4069,7 +4069,7 @@ TabButtonLabel.TextColor3 = Library.FontColor
 
                 Button.InputBegan:Connect(
                     function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch)  then
                             Tab:Show()
                         end
                     end
@@ -4105,7 +4105,7 @@ TabButtonLabel.TextColor3 = Library.FontColor
 
         TabButton.InputBegan:Connect(
             function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame()  then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or  Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() and not InputService:IsMouseButtonPressed(Enum.UserInputType.Touch)  then
                     Tab:ShowTab()
                 end
             end
