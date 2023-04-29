@@ -607,6 +607,7 @@ do
 		function ColorPicker:OnChanged(Func)
 			ColorPicker.Changed = Func
 			Func(ColorPicker.Value)
+			return self
 		end
 
 		function ColorPicker:Show()
@@ -920,6 +921,7 @@ do
 		function KeyPicker:OnChanged(Func)
 			KeyPicker.Changed = Func
 			Func(KeyPicker.Value)
+			return self
 		end
 
 		local Picking = false
@@ -1420,6 +1422,7 @@ do
 		function Textbox:OnChanged(Func)
 			Textbox.Changed = Func
 			Func(Textbox.Value)
+			return self
 		end
 
 		Groupbox:AddBlank(5)
@@ -1522,6 +1525,7 @@ do
 		function Toggle:OnChanged(Func)
 			Toggle.Changed = Func
 			Func(Toggle.Value)
+			return self
 		end
 
 		function Toggle:SetValue(Bool)
@@ -1681,6 +1685,7 @@ do
 		function Slider:OnChanged(Func)
 			Slider.Changed = Func
 			Func(Slider.Value)
+			return self
 		end
 
 		local function Round(Value)
@@ -2221,6 +2226,7 @@ do
 		function Dropdown:OnChanged(Func)
 			Dropdown.Changed = Func
 			Func(Dropdown.Value)
+			return self
 		end
 		--[[
         Search.InputBegan:Connect(
