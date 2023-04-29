@@ -1,3 +1,5 @@
+print('Loading UI Linoria v 1.15')
+
 local InputService = game:GetService('UserInputService')
 local TextService = game:GetService('TextService')
 local TweenService = game:GetService('TweenService')
