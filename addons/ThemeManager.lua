@@ -39,11 +39,12 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:ThemeUpdate()
-		self.Library.FontColor = Options.FontColor.Value
-		self.Library.MainColor = Options.MainColor.Value
-		self.Library.AccentColor = Options.AccentColor.Value
-		self.Library.BackgroundColor = Options.BackgroundColor.Value
-		self.Library.OutlineColor = Options.OutlineColor.Value
+		local options = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
+		for i, field in next, options do
+			if Options and Options[field] then
+				self.Library[field] = Options[field].Value
+			end
+		end
 
 		self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor);
 		self.Library:UpdateColorsUsingRegistry()
