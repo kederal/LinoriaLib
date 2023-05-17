@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.6')
+print('Loading Linoria UI v2.8')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -48,6 +48,8 @@ local Library = {
 
 	Signals = {},
 	ScreenGui = ScreenGui,
+
+	CustomCursor = false,
 }
 
 local RainbowStep = 0
@@ -72,6 +74,26 @@ table.insert(
 		end
 	end)
 )
+
+local touchStarted = false
+local touchPosition
+local function onScreenTouch(Input, gameProcessedEvent)
+	if Input.UserInputType == Enum.UserInputType.Touch then
+		if Input.State == Enum.UserInputState.Begin then
+			touchStarted = true
+		elseif Input.State == Enum.UserInputState.End and touchStarted then
+			touchStarted = false
+			touchPosition = Input.Position
+		end
+	end
+end
+
+local function ClickTouch(Button)
+	if touchStarted or not touchPosition then
+		return false
+	end
+	return touchPosition.X >= Button.AbsolutePosition.X and touchPosition.X <= Button.AbsolutePosition.X + Button.AbsoluteSize.X and touchPosition.Y >= Button.AbsolutePosition.Y and touchPosition.Y <= Button.AbsolutePosition.Y + Button.AbsoluteSize.Y
+end
 
 local function GetPlayersString()
 	local PlayerList = Players:GetPlayers()
@@ -176,14 +198,14 @@ function Library:MakeDraggable(Instance, Cutoff)
 	Instance.Active = true
 
 	Instance.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Instance) then
 			local ObjPos = Vector2.new(Mouse.X - Instance.AbsolutePosition.X, Mouse.Y - Instance.AbsolutePosition.Y)
 
 			if ObjPos.Y > (Cutoff or 40) then
 				return
 			end
 
-			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 				Instance.Position = UDim2.new(0, Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X), 0, Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y))
 
 				RenderStepped:Wait()
@@ -377,6 +399,10 @@ function Library:GiveSignal(Signal)
 	-- Only used for signals not attached to library instances, as those should be cleaned up on object destruction by Roblox
 	table.insert(Library.Signals, Signal)
 end
+
+Library:GiveSignal(InputService.InputBegan:Connect(onScreenTouch))
+Library:GiveSignal(InputService.InputChanged:Connect(onScreenTouch))
+Library:GiveSignal(InputService.InputEnded:Connect(onScreenTouch))
 
 function Library:Unload()
 	-- Unload all of the signals
@@ -749,7 +775,7 @@ do
 				Library:OnHighlight(Button, Button, { TextColor3 = 'AccentColor' }, { TextColor3 = 'FontColor' })
 
 				Button.InputBegan:Connect(function(Input)
-					if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+					if Input.UserInputType ~= Enum.UserInputType.MouseButton1 or not ClickTouch(Button) then
 						return
 					end
 
@@ -886,8 +912,8 @@ do
 		end
 
 		SatVibMap.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(SatVibMap) then
+				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 					local MinX = SatVibMap.AbsolutePosition.X
 					local MaxX = MinX + SatVibMap.AbsoluteSize.X
 					local MouseX = math.clamp(Mouse.X, MinX, MaxX)
@@ -908,8 +934,8 @@ do
 		end)
 
 		HueSelectorInner.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(HueSelectorInner) then
+				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 					local MinY = HueSelectorInner.AbsolutePosition.Y
 					local MaxY = MinY + HueSelectorInner.AbsoluteSize.Y
 					local MouseY = math.clamp(Mouse.Y, MinY, MaxY)
@@ -925,7 +951,7 @@ do
 		end)
 
 		DisplayFrame.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(DisplayFrame)) and not Library:MouseIsOverOpenedFrame() then
 				if PickerFrameOuter.Visible then
 					ColorPicker:Hide()
 				else
@@ -940,8 +966,8 @@ do
 
 		if TransparencyBoxInner then
 			TransparencyBoxInner.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(TransparencyBoxInner) then
+					while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 						local MinX = TransparencyBoxInner.AbsolutePosition.X
 						local MaxX = MinX + TransparencyBoxInner.AbsoluteSize.X
 						local MouseX = math.clamp(Mouse.X, MinX, MaxX)
@@ -959,7 +985,7 @@ do
 		end
 
 		Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or touchStarted then
 				local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
 
 				if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -1118,7 +1144,7 @@ do
 			end
 
 			Label.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Label) then
 					ModeButton:Select()
 					Library:AttemptSave()
 				end
@@ -1214,7 +1240,7 @@ do
 		local Picking = false
 
 		PickOuter.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(PickOuter)) and not Library:MouseIsOverOpenedFrame() then
 				Picking = true
 
 				DisplayLabel.Text = ''
@@ -1479,7 +1505,7 @@ do
 					return false
 				end
 
-				if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+				if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and not ClickTouch(Button.Outer) then
 					return false
 				end
 
@@ -1905,7 +1931,7 @@ do
 		end
 
 		ToggleRegion.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(ToggleRegion)) and not Library:MouseIsOverOpenedFrame() then
 				Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
 				Library:AttemptSave()
 			end
@@ -2089,12 +2115,12 @@ do
 		end
 
 		SliderInner.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(SliderInner)) and not Library:MouseIsOverOpenedFrame() then
 				local mPos = Mouse.X
 				local gPos = Fill.Size.X.Offset
 				local Diff = mPos - (Fill.AbsolutePosition.X + gPos)
 
-				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 					local nMPos = Mouse.X
 					local nX = math.clamp(gPos + (nMPos - mPos) + Diff, 0, Slider.MaxSize)
 
@@ -2403,7 +2429,7 @@ do
 				end
 
 				ButtonLabel.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(ButtonLabel) then
 						local Try = not Selected
 
 						if Dropdown:GetActiveValues() == 1 and not Try and not Info.AllowNull then
@@ -2515,7 +2541,7 @@ do
 		end
 
 		DropdownOuter.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(DropdownOuter)) and not Library:MouseIsOverOpenedFrame() then
 				if ListOuter.Visible then
 					Dropdown:CloseDropdown()
 				else
@@ -2525,7 +2551,7 @@ do
 		end)
 
 		InputService.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or touchStarted then
 				local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize
 
 				if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
@@ -2944,7 +2970,11 @@ function Library:CreateWindow(...)
 		Config.Position = UDim2.fromOffset(175, 50)
 	end
 	if typeof(Config.Size) ~= 'UDim2' then
-		Config.Size = UDim2.fromOffset(550, 600)
+		if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
+			Config.Size = UDim2.fromOffset(400, 450)
+		else
+			Config.Size = UDim2.fromOffset(550, 600)
+		end
 	end
 
 	if Config.Center then
@@ -3160,6 +3190,8 @@ function Library:CreateWindow(...)
 				Tab:HideTab()
 			end
 
+			TabButtonLabel.TextColor3 = Library.AccentColor
+			Library.RegistryMap[TabButtonLabel].Properties.TextColor3 = 'AccentColor'
 			Blocker.BackgroundTransparency = 0
 			TabButton.BackgroundColor3 = Library.MainColor
 			Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'MainColor'
@@ -3167,6 +3199,8 @@ function Library:CreateWindow(...)
 		end
 
 		function Tab:HideTab()
+			TabButtonLabel.TextColor3 = Library.FontColor
+			Library.RegistryMap[TabButtonLabel].Properties.TextColor3 = 'FontColor'
 			Blocker.BackgroundTransparency = 1
 			TabButton.BackgroundColor3 = Library.BackgroundColor
 			Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'BackgroundColor'
@@ -3397,6 +3431,8 @@ function Library:CreateWindow(...)
 					Container.Visible = true
 					Block.Visible = true
 
+					ButtonLabel.TextColor3 = Library.AccentColor
+					Library.RegistryMap[ButtonLabel].Properties.TextColor3 = 'AccentColor'
 					Button.BackgroundColor3 = Library.BackgroundColor
 					Library.RegistryMap[Button].Properties.BackgroundColor3 = 'BackgroundColor'
 
@@ -3407,6 +3443,8 @@ function Library:CreateWindow(...)
 					Container.Visible = false
 					Block.Visible = false
 
+					ButtonLabel.TextColor3 = Library.FontColor
+					Library.RegistryMap[ButtonLabel].Properties.TextColor3 = 'FontColor'
 					Button.BackgroundColor3 = Library.MainColor
 					Library.RegistryMap[Button].Properties.BackgroundColor3 = 'MainColor'
 				end
@@ -3440,7 +3478,7 @@ function Library:CreateWindow(...)
 				end
 
 				Button.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+					if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Button)) and not Library:MouseIsOverOpenedFrame() then
 						Tab:Show()
 						Tab:Resize()
 					end
@@ -3476,7 +3514,7 @@ function Library:CreateWindow(...)
 		end
 
 		TabButton.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(TabButton) then
 				Tab:ShowTab()
 			end
 		end)
@@ -3524,21 +3562,22 @@ function Library:CreateWindow(...)
 				local Cursor = Drawing.new('Triangle')
 				Cursor.Thickness = 1
 				Cursor.Filled = true
-				Cursor.Visible = true
+				Cursor.Visible = false
 
 				local CursorOutline = Drawing.new('Triangle')
 				CursorOutline.Thickness = 1
 				CursorOutline.Filled = false
 				CursorOutline.Color = Color3.new(0, 0, 0)
-				CursorOutline.Visible = true
+				CursorOutline.Visible = false
 
 				while Toggled and ScreenGui.Parent do
-					InputService.MouseIconEnabled = false
+					local Visi = Library.CustomCursor
+					Cursor.Visible = Visi
+					CursorOutline.Visible = Visi
+					InputService.MouseIconEnabled = Visi == false
 
 					local mPos = InputService:GetMouseLocation()
-
 					Cursor.Color = Library.AccentColor
-
 					Cursor.PointA = Vector2.new(mPos.X, mPos.Y)
 					Cursor.PointB = Vector2.new(mPos.X + 16, mPos.Y + 6)
 					Cursor.PointC = Vector2.new(mPos.X + 6, mPos.Y + 16)
@@ -3546,7 +3585,6 @@ function Library:CreateWindow(...)
 					CursorOutline.PointA = Cursor.PointA
 					CursorOutline.PointB = Cursor.PointB
 					CursorOutline.PointC = Cursor.PointC
-
 					RenderStepped:Wait()
 				end
 
