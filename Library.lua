@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.4')
+print('Loading Linoria UI v2.6')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -2131,6 +2131,10 @@ do
 			Info.AllowNull = true
 		elseif Info.SpecialType == 'Team' then
 			Info.Values = GetTeamsString()
+			Info.AllowNull = true
+		end
+
+		if not Info.Default then
 			Info.AllowNull = true
 		end
 
