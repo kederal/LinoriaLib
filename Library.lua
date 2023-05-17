@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.9')
+print('Loading Linoria UI v3.01')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -79,20 +79,24 @@ local touchStarted = false
 local touchPosition
 local function onScreenTouch(Input, gameProcessedEvent)
 	if Input.UserInputType == Enum.UserInputType.Touch then
-		if Input.State == Enum.UserInputState.Begin then
+		if Input.UserInputState == Enum.UserInputState.Begin then
 			touchStarted = true
-		elseif Input.State == Enum.UserInputState.End and touchStarted then
+		elseif Input.UserInputState == Enum.UserInputState.End and touchStarted then
 			touchStarted = false
 			touchPosition = Input.Position
 		end
 	end
 end
 
-local function ClickTouch(Button)
-	if touchStarted or not touchPosition then
-		return false
+local function ClickTouch(input)
+	if (pcall(function()
+		return input.UserInputState == Enum.UserInputState.Begin
+	end) and input.UserInputState == Enum.UserInputState.Begin) and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and not isGameProcess then
+		print(touchStarted)
+		print('Eita como clicka nas coisas')
+		return true
 	end
-	return touchPosition.X >= Button.AbsolutePosition.X and touchPosition.X <= Button.AbsolutePosition.X + Button.AbsoluteSize.X and touchPosition.Y >= Button.AbsolutePosition.Y and touchPosition.Y <= Button.AbsolutePosition.Y + Button.AbsoluteSize.Y
+	return false
 end
 
 local function GetPlayersString()
@@ -198,7 +202,7 @@ function Library:MakeDraggable(Instance, Cutoff)
 	Instance.Active = true
 
 	Instance.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Instance) then
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 			local ObjPos = Vector2.new(Mouse.X - Instance.AbsolutePosition.X, Mouse.Y - Instance.AbsolutePosition.Y)
 
 			if ObjPos.Y > (Cutoff or 40) then
@@ -775,7 +779,7 @@ do
 				Library:OnHighlight(Button, Button, { TextColor3 = 'AccentColor' }, { TextColor3 = 'FontColor' })
 
 				Button.InputBegan:Connect(function(Input)
-					if Input.UserInputType ~= Enum.UserInputType.MouseButton1 or not ClickTouch(Button) then
+					if Input.UserInputType ~= Enum.UserInputType.MouseButton1 or not ClickTouch(Input) then
 						return
 					end
 
@@ -912,7 +916,7 @@ do
 		end
 
 		SatVibMap.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(SatVibMap) then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 					local MinX = SatVibMap.AbsolutePosition.X
 					local MaxX = MinX + SatVibMap.AbsoluteSize.X
@@ -934,7 +938,7 @@ do
 		end)
 
 		HueSelectorInner.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(HueSelectorInner) then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 					local MinY = HueSelectorInner.AbsolutePosition.Y
 					local MaxY = MinY + HueSelectorInner.AbsoluteSize.Y
@@ -951,7 +955,7 @@ do
 		end)
 
 		DisplayFrame.InputBegan:Connect(function(Input)
-			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(DisplayFrame)) and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				if PickerFrameOuter.Visible then
 					ColorPicker:Hide()
 				else
@@ -966,7 +970,7 @@ do
 
 		if TransparencyBoxInner then
 			TransparencyBoxInner.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(TransparencyBoxInner) then
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 					while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 						local MinX = TransparencyBoxInner.AbsolutePosition.X
 						local MaxX = MinX + TransparencyBoxInner.AbsoluteSize.X
@@ -1144,7 +1148,7 @@ do
 			end
 
 			Label.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Label) then
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 					ModeButton:Select()
 					Library:AttemptSave()
 				end
@@ -1240,7 +1244,7 @@ do
 		local Picking = false
 
 		PickOuter.InputBegan:Connect(function(Input)
-			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(PickOuter)) and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				Picking = true
 
 				DisplayLabel.Text = ''
@@ -1505,7 +1509,7 @@ do
 					return false
 				end
 
-				if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and not ClickTouch(Button.Outer) then
+				if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and not ClickTouch(Input) then
 					return false
 				end
 
@@ -1932,7 +1936,7 @@ do
 
 		ToggleRegion.InputBegan:Connect(function(Input)
 			print(Input.UserInputType)
-			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(ToggleRegion)) and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
 				Library:AttemptSave()
 			end
@@ -2116,7 +2120,7 @@ do
 		end
 
 		SliderInner.InputBegan:Connect(function(Input)
-			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(SliderInner)) and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				local mPos = Mouse.X
 				local gPos = Fill.Size.X.Offset
 				local Diff = mPos - (Fill.AbsolutePosition.X + gPos)
@@ -2430,7 +2434,7 @@ do
 				end
 
 				ButtonLabel.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(ButtonLabel) then
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 						local Try = not Selected
 
 						if Dropdown:GetActiveValues() == 1 and not Try and not Info.AllowNull then
@@ -2542,7 +2546,7 @@ do
 		end
 
 		DropdownOuter.InputBegan:Connect(function(Input)
-			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(DropdownOuter)) and not Library:MouseIsOverOpenedFrame() then
+			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				if ListOuter.Visible then
 					Dropdown:CloseDropdown()
 				else
@@ -3479,7 +3483,7 @@ function Library:CreateWindow(...)
 				end
 
 				Button.InputBegan:Connect(function(Input)
-					if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Button)) and not Library:MouseIsOverOpenedFrame() then
+					if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 						Tab:Show()
 						Tab:Resize()
 					end
@@ -3515,7 +3519,7 @@ function Library:CreateWindow(...)
 		end
 
 		TabButton.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(TabButton) then
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
 				Tab:ShowTab()
 			end
 		end)
