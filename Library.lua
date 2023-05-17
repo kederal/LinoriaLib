@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.8')
+print('Loading Linoria UI v2.9')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -1931,6 +1931,7 @@ do
 		end
 
 		ToggleRegion.InputBegan:Connect(function(Input)
+			print(Input.UserInputType)
 			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(ToggleRegion)) and not Library:MouseIsOverOpenedFrame() then
 				Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
 				Library:AttemptSave()
