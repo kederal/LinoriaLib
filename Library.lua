@@ -1,4 +1,4 @@
-print('Loading Linoria UI v3.04')
+print('Loading Linoria UI v3.07')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -2602,7 +2602,7 @@ do
 			end
 		end)
 
-		Searchtextbox.Changed:Connect(function()
+		Searchtextbox:GetPropertyChangedSignal('Text'):Connect(function()
 			local strtext = Searchtextbox.Text
 			if #strtext >= 29 then
 				strtext = strtext:sub(1, #strtext - 2)
