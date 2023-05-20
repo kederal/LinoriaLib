@@ -1,4 +1,4 @@
-print('Loading Linoria UI v3.01')
+print('Loading Linoria UI v3.04')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -78,6 +78,9 @@ table.insert(
 local touchStarted = false
 local touchPosition
 local function onScreenTouch(Input, gameProcessedEvent)
+	if not Input then
+		return
+	end
 	if Input.UserInputType == Enum.UserInputType.Touch then
 		if Input.UserInputState == Enum.UserInputState.Begin then
 			touchStarted = true
@@ -162,7 +165,7 @@ function Library:Create(Class, Properties)
 		_Instance = Instance.new(Class)
 	end
 
-	for Property, Value in next, Properties do
+	for Property, Value in pairs(Properties) do
 		_Instance[Property] = Value
 	end
 
@@ -280,7 +283,7 @@ function Library:OnHighlight(HighlightInstance, Instance, Properties, Properties
 	HighlightInstance.MouseEnter:Connect(function()
 		local Reg = Library.RegistryMap[Instance]
 
-		for Property, ColorIdx in next, Properties do
+		for Property, ColorIdx in pairs(Properties) do
 			Instance[Property] = Library[ColorIdx] or ColorIdx
 
 			if Reg and Reg.Properties[Property] then
@@ -292,7 +295,7 @@ function Library:OnHighlight(HighlightInstance, Instance, Properties, Properties
 	HighlightInstance.MouseLeave:Connect(function()
 		local Reg = Library.RegistryMap[Instance]
 
-		for Property, ColorIdx in next, PropertiesDefault do
+		for Property, ColorIdx in pairs(PropertiesDefault) do
 			Instance[Property] = Library[ColorIdx] or ColorIdx
 
 			if Reg and Reg.Properties[Property] then
@@ -303,7 +306,7 @@ function Library:OnHighlight(HighlightInstance, Instance, Properties, Properties
 end
 
 function Library:MouseIsOverOpenedFrame()
-	for Frame, _ in next, Library.OpenedFrames do
+	for Frame, _ in pairs(Library.OpenedFrames) do
 		local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize
 
 		if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
@@ -321,7 +324,7 @@ function Library:IsMouseOverFrame(Frame)
 end
 
 function Library:UpdateDependencyBoxes()
-	for _, Depbox in next, Library.DependencyBoxes do
+	for _, Depbox in pairs(Library.DependencyBoxes) do
 		Depbox:Update()
 	end
 end
@@ -388,8 +391,8 @@ function Library:UpdateColorsUsingRegistry()
 
 	-- The above would be especially efficient for a rainbow menu color or live color-changing.
 
-	for Idx, Object in next, Library.Registry do
-		for Property, ColorIdx in next, Object.Properties do
+	for Idx, Object in pairs(Library.Registry) do
+		for Property, ColorIdx in pairs(Object.Properties) do
 			if type(ColorIdx) == 'string' then
 				Object.Instance[Property] = Library[ColorIdx]
 			elseif type(ColorIdx) == 'function' then
@@ -733,7 +736,7 @@ do
 
 			local function updateMenuSize()
 				local menuWidth = 60
-				for i, label in next, ContextMenu.Inner:GetChildren() do
+				for i, label in pairs(ContextMenu.Inner:GetChildren()) do
 					if label:IsA('TextLabel') then
 						menuWidth = math.max(menuWidth, label.TextBounds.X)
 					end
@@ -885,7 +888,7 @@ do
 		end
 
 		function ColorPicker:Show()
-			for Frame, Val in next, Library.OpenedFrames do
+			for Frame, Val in pairs(Library.OpenedFrames) do
 				if Frame.Name == 'Color' then
 					Frame.Visible = false
 					Library.OpenedFrames[Frame] = nil
@@ -1115,7 +1118,7 @@ do
 		local Modes = Info.Modes or { 'Always', 'Toggle', 'Hold' }
 		local ModeButtons = {}
 
-		for Idx, Mode in next, Modes do
+		for Idx, Mode in ipairs(Modes) do
 			local ModeButton = {}
 
 			local Label = Library:CreateLabel({
@@ -1128,7 +1131,7 @@ do
 			})
 
 			function ModeButton:Select()
-				for _, Button in next, ModeButtons do
+				for _, Button in pairs(ModeButtons) do
 					Button:Deselect()
 				end
 
@@ -1178,7 +1181,7 @@ do
 			local YSize = 0
 			local XSize = 0
 
-			for _, Label in next, Library.KeybindContainer:GetChildren() do
+			for _, Label in pairs(Library.KeybindContainer:GetChildren()) do
 				if Label:IsA('TextLabel') and Label.Visible then
 					YSize = YSize + 18
 					if Label.TextBounds.X > XSize then
@@ -1922,7 +1925,7 @@ do
 			Toggle.Value = Bool
 			Toggle:Display()
 
-			for _, Addon in next, Toggle.Addons do
+			for _, Addon in pairs(Toggle.Addons) do
 				if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
 					Addon.Toggled = Bool
 					Addon:Update()
@@ -2204,7 +2207,7 @@ do
 			Groupbox:AddBlank(3)
 		end
 
-		for _, Element in next, Container:GetChildren() do
+		for _, Element in ipairs(Container:GetChildren()) do
 			if not Element:IsA('UIListLayout') then
 				RelativeOffset = RelativeOffset + Element.Size.Y.Offset
 			end
@@ -2259,11 +2262,36 @@ do
 			Position = UDim2.new(0, 5, 0, 0),
 			Size = UDim2.new(1, -5, 1, 0),
 			TextSize = 14,
-			Text = '--',
+			Text = 'None',
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
 			ZIndex = 7,
 			Parent = DropdownInner,
+		})
+
+		local ContainerText = Library:Create('Frame', {
+			BackgroundTransparency = 1,
+			ClipsDescendants = true,
+			Size = UDim2.new(1, 0, 1, 0),
+			ZIndex = 6,
+			Parent = DropdownInner,
+			Visible = false,
+		})
+
+		local Searchtextbox = Library:Create('TextBox', {
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0, 5, 0, 0),
+			Size = UDim2.new(1, -42, 1, 0),
+			Parent = ContainerText,
+			Font = Enum.Font.Code,
+			PlaceholderColor3 = Color3.fromRGB(190, 190, 190),
+			PlaceholderText = 'Search Here...',
+			Text = '',
+			TextColor3 = Library.FontColor,
+			TextSize = 14,
+			TextStrokeTransparency = 0,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			ZIndex = 7,
 		})
 
 		Library:OnHighlight(DropdownOuter, DropdownOuter, { BorderColor3 = 'AccentColor' }, { BorderColor3 = 'Black' })
@@ -2341,7 +2369,7 @@ do
 			local Str = ''
 
 			if Info.Multi then
-				for Idx, Value in next, Values do
+				for Idx, Value in pairs(Values) do
 					if table.find(Dropdown.Value, Value) then
 						Str = Str .. Value .. ', '
 					end
@@ -2359,7 +2387,7 @@ do
 			if Info.Multi then
 				local T = {}
 
-				for Value, Bool in next, Dropdown.Value do
+				for Value, Bool in pairs(Dropdown.Value) do
 					table.insert(T, Value)
 				end
 
@@ -2369,11 +2397,12 @@ do
 			end
 		end
 
-		function Dropdown:BuildDropdownList()
+		function Dropdown:BuildDropdownList(str)
+			local str = str or ''
 			local Values = Dropdown.Values
 			local Buttons = {}
 
-			for _, Element in next, Scrolling:GetChildren() do
+			for _, Element in ipairs(Scrolling:GetChildren()) do
 				if not Element:IsA('UIListLayout') then
 					Element:Destroy()
 				end
@@ -2381,109 +2410,111 @@ do
 
 			local Count = 0
 
-			for Idx, Value in next, Values do
-				local Table = {}
+			for Idx, Value in pairs(Values) do
+				if str == '' or string.find(string.upper(Value), string.upper(str)) then
+					local Table = {}
 
-				Count = Count + 1
+					Count = Count + 1
 
-				local Button = Library:Create('Frame', {
-					BackgroundColor3 = Library.MainColor,
-					BorderColor3 = Library.OutlineColor,
-					BorderMode = Enum.BorderMode.Middle,
-					Size = UDim2.new(1, -1, 0, 20),
-					ZIndex = 23,
-					Active = true,
-					Parent = Scrolling,
-				})
+					local Button = Library:Create('Frame', {
+						BackgroundColor3 = Library.MainColor,
+						BorderColor3 = Library.OutlineColor,
+						BorderMode = Enum.BorderMode.Middle,
+						Size = UDim2.new(1, -1, 0, 20),
+						ZIndex = 23,
+						Active = true,
+						Parent = Scrolling,
+					})
 
-				Library:AddToRegistry(Button, {
-					BackgroundColor3 = 'MainColor',
-					BorderColor3 = 'OutlineColor',
-				})
+					Library:AddToRegistry(Button, {
+						BackgroundColor3 = 'MainColor',
+						BorderColor3 = 'OutlineColor',
+					})
 
-				local ButtonLabel = Library:CreateLabel({
-					Active = false,
-					Size = UDim2.new(1, -6, 1, 0),
-					Position = UDim2.new(0, 6, 0, 0),
-					TextSize = 14,
-					Text = Value,
-					TextXAlignment = Enum.TextXAlignment.Left,
-					ZIndex = 25,
-					Parent = Button,
-				})
+					local ButtonLabel = Library:CreateLabel({
+						Active = false,
+						Size = UDim2.new(1, -6, 1, 0),
+						Position = UDim2.new(0, 6, 0, 0),
+						TextSize = 14,
+						Text = Value,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						ZIndex = 25,
+						Parent = Button,
+					})
 
-				Library:OnHighlight(Button, Button, { BorderColor3 = 'AccentColor', ZIndex = 24 }, { BorderColor3 = 'OutlineColor', ZIndex = 23 })
+					Library:OnHighlight(Button, Button, { BorderColor3 = 'AccentColor', ZIndex = 24 }, { BorderColor3 = 'OutlineColor', ZIndex = 23 })
 
-				local Selected
+					local Selected
 
-				if Info.Multi then
-					Selected = table.find(Dropdown.Value, Value)
-				else
-					Selected = Dropdown.Value == Value
-				end
-
-				function Table:UpdateButton()
 					if Info.Multi then
 						Selected = table.find(Dropdown.Value, Value)
 					else
 						Selected = Dropdown.Value == Value
 					end
 
-					ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
-					Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
-				end
-
-				ButtonLabel.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
-						local Try = not Selected
-
-						if Dropdown:GetActiveValues() == 1 and not Try and not Info.AllowNull then
-							Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-							Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
+					function Table:UpdateButton()
+						if Info.Multi then
+							Selected = table.find(Dropdown.Value, Value)
 						else
-							if Info.Multi then
-								Selected = Try
-
-								if Selected then
-									local index = table.find(Dropdown.Value, Value)
-									if not index then
-										table.insert(Dropdown.Value, Value)
-									end
-								else
-									local index = table.find(Dropdown.Value, Value)
-									if index then
-										table.remove(Dropdown.Value, index)
-									end
-								end
-							else
-								Selected = Try
-
-								if Selected then
-									Dropdown.Value = Value
-								else
-									Dropdown.Value = nil
-								end
-
-								for _, OtherButton in next, Buttons do
-									OtherButton:UpdateButton()
-								end
-							end
-
-							Table:UpdateButton()
-							Dropdown:Display()
-
-							Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-							Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
-
-							Library:AttemptSave()
+							Selected = Dropdown.Value == Value
 						end
+
+						ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
+						Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
 					end
-				end)
 
-				Table:UpdateButton()
-				Dropdown:Display()
+					ButtonLabel.InputBegan:Connect(function(Input)
+						if Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input) then
+							local Try = not Selected
 
-				Buttons[Button] = Table
+							if Dropdown:GetActiveValues() == 1 and not Try and not Info.AllowNull then
+								Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
+								Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
+							else
+								if Info.Multi then
+									Selected = Try
+
+									if Selected then
+										local index = table.find(Dropdown.Value, Value)
+										if not index then
+											table.insert(Dropdown.Value, Value)
+										end
+									else
+										local index = table.find(Dropdown.Value, Value)
+										if index then
+											table.remove(Dropdown.Value, index)
+										end
+									end
+								else
+									Selected = Try
+
+									if Selected then
+										Dropdown.Value = Value
+									else
+										Dropdown.Value = nil
+									end
+
+									for _, OtherButton in pairs(Buttons) do
+										OtherButton:UpdateButton()
+									end
+								end
+
+								Table:UpdateButton()
+								Dropdown:Display()
+
+								Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
+								Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
+
+								Library:AttemptSave()
+							end
+						end
+					end)
+
+					Table:UpdateButton()
+					Dropdown:Display()
+
+					Buttons[Button] = Table
+				end
 			end
 
 			Scrolling.CanvasSize = UDim2.fromOffset(0, (Count * 20) + 1)
@@ -2505,13 +2536,19 @@ do
 		end
 
 		function Dropdown:OpenDropdown()
-			ListOuter.Visible = true
+			local T = true
+			ItemList.Visible = not T
+			ContainerText.Visible = T
+			ListOuter.Visible = T
 			Library.OpenedFrames[ListOuter] = true
 			DropdownArrow.Rotation = 180
 		end
 
 		function Dropdown:CloseDropdown()
-			ListOuter.Visible = false
+			local T = false
+			ItemList.Visible = not T
+			ContainerText.Visible = T
+			ListOuter.Visible = T
 			Library.OpenedFrames[ListOuter] = nil
 			DropdownArrow.Rotation = 0
 		end
@@ -2526,7 +2563,7 @@ do
 			if Dropdown.Multi then
 				Dropdown.Value = {}
 
-				for _, Value in next, Val do
+				for _, Value in pairs(Val) do
 					if table.find(Dropdown.Values, Value) and not table.find(Dropdown.Value, Value) then
 						table.insert(Dropdown.Value, Value)
 					end
@@ -2565,6 +2602,15 @@ do
 			end
 		end)
 
+		Searchtextbox.Changed:Connect(function()
+			local strtext = Searchtextbox.Text
+			if #strtext >= 29 then
+				strtext = strtext:sub(1, #strtext - 2)
+				Searchtextbox.Text = (strtext == '' and '' or strtext)
+			end
+			Dropdown:BuildDropdownList(Searchtextbox.Text)
+		end)
+
 		Dropdown:BuildDropdownList()
 		Dropdown:Display()
 
@@ -2576,7 +2622,7 @@ do
 				table.insert(Defaults, Idx)
 			end
 		elseif type(Info.Default) == 'table' then
-			for _, Value in next, Info.Default do
+			for _, Value in pairs(Info.Default) do
 				local Idx = table.find(Dropdown.Values, Value)
 				if Idx then
 					table.insert(Defaults, Idx)
@@ -2657,7 +2703,7 @@ do
 		end)
 
 		function Depbox:Update()
-			for _, Dependency in next, Depbox.Dependencies do
+			for _, Dependency in pairs(Depbox.Dependencies) do
 				local Elem = Dependency[1]
 				local Value = Dependency[2]
 
@@ -2673,7 +2719,7 @@ do
 		end
 
 		function Depbox:SetupDependencies(Dependencies)
-			for _, Dependency in next, Dependencies do
+			for _, Dependency in pairs(Dependencies) do
 				assert(type(Dependency) == 'table', 'SetupDependencies: Dependency is not of type `table`.')
 				assert(Dependency[1], 'SetupDependencies: Dependency is missing element argument.')
 				assert(Dependency[2] ~= nil, 'SetupDependencies: Dependency is missing value argument.')
@@ -3184,14 +3230,14 @@ function Library:CreateWindow(...)
 			Parent = RightSide,
 		})
 
-		for _, Side in next, { LeftSide, RightSide } do
+		for _, Side in pairs({ LeftSide, RightSide }) do
 			Side:WaitForChild('UIListLayout'):GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 				Side.CanvasSize = UDim2.fromOffset(0, Side.UIListLayout.AbsoluteContentSize.Y)
 			end)
 		end
 
 		function Tab:ShowTab()
-			for _, Tab in next, Window.Tabs do
+			for _, Tab in pairs(Window.Tabs) do
 				Tab:HideTab()
 			end
 
@@ -3287,7 +3333,7 @@ function Library:CreateWindow(...)
 			function Groupbox:Resize()
 				local Size = 0
 
-				for _, Element in next, Groupbox.Container:GetChildren() do
+				for _, Element in ipairs(Groupbox.Container:GetChildren()) do
 					if (not Element:IsA('UIListLayout')) and Element.Visible then
 						Size = Size + Element.Size.Y.Offset
 					end
@@ -3429,7 +3475,7 @@ function Library:CreateWindow(...)
 				})
 
 				function Tab:Show()
-					for _, Tab in next, Tabbox.Tabs do
+					for _, Tab in pairs(Tabbox.Tabs) do
 						Tab:Hide()
 					end
 
@@ -3457,11 +3503,11 @@ function Library:CreateWindow(...)
 				function Tab:Resize()
 					local TabCount = 0
 
-					for _, Tab in next, Tabbox.Tabs do
+					for _, Tab in pairs(Tabbox.Tabs) do
 						TabCount = TabCount + 1
 					end
 
-					for _, Button in next, TabboxButtons:GetChildren() do
+					for _, Button in ipairs(TabboxButtons:GetChildren()) do
 						if not Button:IsA('UIListLayout') then
 							Button.Size = UDim2.new(1 / TabCount, 0, 1, 0)
 						end
@@ -3473,7 +3519,7 @@ function Library:CreateWindow(...)
 
 					local Size = 0
 
-					for _, Element in next, Tab.Container:GetChildren() do
+					for _, Element in ipairs(Tab.Container:GetChildren()) do
 						if (not Element:IsA('UIListLayout')) and Element.Visible then
 							Size = Size + Element.Size.Y.Offset
 						end
@@ -3595,12 +3641,16 @@ function Library:CreateWindow(...)
 
 				InputService.MouseIconEnabled = State
 
-				Cursor:Remove()
-				CursorOutline:Remove()
+				if Cursor then
+					Cursor:Remove()
+				end
+				if CursorOutline then
+					CursorOutline:Remove()
+				end
 			end)
 		end
 
-		for _, Desc in next, Outer:GetDescendants() do
+		for _, Desc in ipairs(Outer:GetDescendants()) do
 			local Properties = {}
 
 			if Desc:IsA('ImageLabel') then
@@ -3621,7 +3671,7 @@ function Library:CreateWindow(...)
 				TransparencyCache[Desc] = Cache
 			end
 
-			for _, Prop in next, Properties do
+			for _, Prop in ipairs(Properties) do
 				if not Cache[Prop] then
 					Cache[Prop] = Desc[Prop]
 				end
@@ -3663,7 +3713,7 @@ end
 local function OnPlayerChange()
 	local PlayerList = GetPlayersString()
 
-	for _, Value in next, Options do
+	for _, Value in pairs(Options) do
 		if Value.Type == 'Dropdown' and Value.SpecialType == 'Player' then
 			Value:SetValues(PlayerList)
 		end
