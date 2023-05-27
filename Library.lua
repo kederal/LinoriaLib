@@ -1,4 +1,4 @@
-print('Loading Linoria UI v3.07')
+print('Loading Linoria UI v2.9.0')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -95,8 +95,6 @@ local function ClickTouch(input)
 	if (pcall(function()
 		return input.UserInputState == Enum.UserInputState.Begin
 	end) and input.UserInputState == Enum.UserInputState.Begin) and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and not isGameProcess then
-		print(touchStarted)
-		print('Eita como clicka nas coisas')
 		return true
 	end
 	return false
@@ -641,7 +639,7 @@ do
 		})
 
 		local RgbBox = Library:Create(RgbBoxBase.Frame:FindFirstChild('TextBox'), {
-			Text = '255, 255, 255',
+			Text = [[255, 255, 255]],
 			PlaceholderText = 'RGB color',
 			TextColor3 = Library.FontColor,
 		})
@@ -1288,8 +1286,8 @@ do
 					DisplayLabel.Text = Key
 					KeyPicker.Value = Key
 
-					Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
-					Library:SafeCallback(KeyPicker.Changed, Input.KeyCode or Input.UserInputType)
+					Library:SafeCallback(KeyPicker.ChangedCallback, KeyPicker.Value)
+					Library:SafeCallback(KeyPicker.Changed, KeyPicker.Value)
 
 					Library:AttemptSave()
 
@@ -1938,7 +1936,6 @@ do
 		end
 
 		ToggleRegion.InputBegan:Connect(function(Input)
-			print(Input.UserInputType)
 			if (Input.UserInputType == Enum.UserInputType.MouseButton1 or ClickTouch(Input)) and not Library:MouseIsOverOpenedFrame() then
 				Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
 				Library:AttemptSave()
@@ -3021,7 +3018,7 @@ function Library:CreateWindow(...)
 		Config.Position = UDim2.fromOffset(175, 50)
 	end
 	if typeof(Config.Size) ~= 'UDim2' then
-		if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
+		if inputService.TouchEnabled then
 			Config.Size = UDim2.fromOffset(400, 450)
 		else
 			Config.Size = UDim2.fromOffset(550, 600)
@@ -3604,6 +3601,11 @@ function Library:CreateWindow(...)
 
 		if Toggled then
 			-- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
+			if inputService.TouchEnabled then
+				Outer.Size = UDim2.fromOffset(400, 450)
+			else
+				Outer.Size = UDim2.fromOffset(550, 600)
+			end
 			Outer.Visible = true
 
 			task.spawn(function()
