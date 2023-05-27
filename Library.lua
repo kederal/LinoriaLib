@@ -1,4 +1,5 @@
-print('Loading Linoria UI v2.10.4')
+print('Loading Linoria UI v2.11.4')
+
 -- violin-suzutsuki i love you !!!!!!
 
 local InputService = game:GetService('UserInputService')
@@ -2906,8 +2907,13 @@ function Library:SetWatermark(Text)
 	Library.WatermarkText.Text = Text
 end
 
-function Library:Notify(Text, Time)
+function Library:Notify(Text, Time, inf)
 	local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14)
+	local NotifyAddons = {}
+
+	if inf then
+		Time = math.huge
+	end
 
 	YSize = YSize + 7
 
@@ -2986,6 +2992,16 @@ function Library:Notify(Text, Time)
 
 	pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true)
 
+	function NotifyAddons:DestroyNotify()
+		pcall(function()
+			pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true)
+
+			wait(0.4)
+
+			NotifyOuter:Destroy()
+		end)
+	end
+
 	task.spawn(function()
 		wait(Time or 5)
 
@@ -2995,6 +3011,7 @@ function Library:Notify(Text, Time)
 
 		NotifyOuter:Destroy()
 	end)
+	return NotifyAddons
 end
 
 function Library:CreateWindow(...)
