@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.9.0')
+print('Loading Linoria UI v2.10.0')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -3018,7 +3018,7 @@ function Library:CreateWindow(...)
 		Config.Position = UDim2.fromOffset(175, 50)
 	end
 	if typeof(Config.Size) ~= 'UDim2' then
-		if inputService.TouchEnabled then
+		if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
 			Config.Size = UDim2.fromOffset(400, 450)
 		else
 			Config.Size = UDim2.fromOffset(550, 600)
@@ -3601,7 +3601,7 @@ function Library:CreateWindow(...)
 
 		if Toggled then
 			-- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
-			if inputService.TouchEnabled then
+			if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
 				Outer.Size = UDim2.fromOffset(400, 450)
 			else
 				Outer.Size = UDim2.fromOffset(550, 600)
