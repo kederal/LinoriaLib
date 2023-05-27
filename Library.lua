@@ -1,4 +1,5 @@
-print('Loading Linoria UI v2.10.3')
+print('Loading Linoria UI v2.10.4')
+
 -- violin-suzutsuki i love you !!!!!!
 
 local InputService = game:GetService('UserInputService')
@@ -3612,6 +3613,7 @@ function Library:CreateWindow(...)
 			end
 			Outer.Visible = true
 
+			--[[
 			task.spawn(function()
 				-- TODO: add cursor fade?
 				local State = InputService.MouseIconEnabled
@@ -3655,6 +3657,7 @@ function Library:CreateWindow(...)
 					CursorOutline:Remove()
 				end
 			end)
+			]]
 		end
 
 		for _, Desc in ipairs(Outer:GetDescendants()) do
