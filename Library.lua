@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.10.3')
+print('Loading Linoria UI v2.10.2')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -392,9 +392,7 @@ function Library:UpdateColorsUsingRegistry()
 	-- The above would be especially efficient for a rainbow menu color or live color-changing.
 
 	for Idx, Object in pairs(Library.Registry) do
-		wait()
 		for Property, ColorIdx in pairs(Object.Properties) do
-			wait()
 			if type(ColorIdx) == 'string' then
 				Object.Instance[Property] = Library[ColorIdx]
 			elseif type(ColorIdx) == 'function' then
