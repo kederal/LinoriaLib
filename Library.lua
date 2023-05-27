@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.11.4')
+print('Loading Linoria UI v2.11.5')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -2911,9 +2911,7 @@ function Library:Notify(Text, Time, inf)
 	local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14)
 	local NotifyAddons = {}
 
-	if inf then
-		Time = math.huge
-	end
+	Time = inf and math.huge or Time or 5
 
 	YSize = YSize + 7
 
@@ -2993,13 +2991,13 @@ function Library:Notify(Text, Time, inf)
 	pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true)
 
 	function NotifyAddons:DestroyNotify()
-		pcall(function()
+		if NotifyOuter and NotifyOuter.Parent then
 			pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true)
 
 			wait(0.4)
 
 			NotifyOuter:Destroy()
-		end)
+		end
 	end
 
 	task.spawn(function()
