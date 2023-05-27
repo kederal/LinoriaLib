@@ -1,4 +1,4 @@
-print('Loading Linoria UI v2.10.0')
+print('Loading Linoria UI v2.10.1')
 
 -- violin-suzutsuki i love you !!!!!!
 
@@ -213,6 +213,7 @@ function Library:MakeDraggable(Instance, Cutoff)
 			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or touchStarted do
 				Instance.Position = UDim2.new(0, Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X), 0, Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y))
 
+				wait()
 				RenderStepped:Wait()
 			end
 		end
@@ -267,6 +268,7 @@ function Library:AddToolTip(InfoStr, HoverInstance)
 
 		while IsHovering do
 			RunService.Heartbeat:Wait()
+			wait()
 			Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
 		end
 	end)
@@ -931,6 +933,7 @@ do
 					ColorPicker.Vib = 1 - ((MouseY - MinY) / (MaxY - MinY))
 					ColorPicker:Display()
 
+					wait()
 					RenderStepped:Wait()
 				end
 
@@ -948,6 +951,7 @@ do
 					ColorPicker.Hue = ((MouseY - MinY) / (MaxY - MinY))
 					ColorPicker:Display()
 
+					wait()
 					RenderStepped:Wait()
 				end
 
@@ -980,7 +984,7 @@ do
 						ColorPicker.Transparency = 1 - ((MouseX - MinX) / (MaxX - MinX))
 
 						ColorPicker:Display()
-
+						wait()
 						RenderStepped:Wait()
 					end
 
@@ -2140,6 +2144,7 @@ do
 						Library:SafeCallback(Slider.Changed, Slider.Value)
 					end
 
+					wait()
 					RenderStepped:Wait()
 				end
 
@@ -3018,7 +3023,7 @@ function Library:CreateWindow(...)
 		Config.Position = UDim2.fromOffset(175, 50)
 	end
 	if typeof(Config.Size) ~= 'UDim2' then
-		if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
+		if inputService.TouchEnabled then
 			Config.Size = UDim2.fromOffset(400, 450)
 		else
 			Config.Size = UDim2.fromOffset(550, 600)
@@ -3601,7 +3606,7 @@ function Library:CreateWindow(...)
 
 		if Toggled then
 			-- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
-			if game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui') then
+			if inputService.TouchEnabled then
 				Outer.Size = UDim2.fromOffset(400, 450)
 			else
 				Outer.Size = UDim2.fromOffset(550, 600)
@@ -3639,6 +3644,7 @@ function Library:CreateWindow(...)
 					CursorOutline.PointB = Cursor.PointB
 					CursorOutline.PointC = Cursor.PointC
 					RenderStepped:Wait()
+					wait()
 				end
 
 				InputService.MouseIconEnabled = State
